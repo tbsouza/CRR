@@ -1,0 +1,163 @@
+/* In CSS, selectors are patterns used to select the element(s) you want to style.
+		selector{
+			 property: value;
+		}
+*/
+
+/* body do html*/
+body{ 
+	background-color: #F5F5F5;
+}
+
+/* titulos h2*/	
+h2{
+	font-size: 150%;
+	font-family: Verdana;
+	color: blue;
+	position: relative;
+	text-align: center;
+}
+
+th{
+	text-align: center;
+	border: 0;
+}
+
+div{
+	display: block;
+}
+
+#text_center{ /* id */
+	text-align: center;
+}
+
+/* Linha da tabela (table row) */
+tr{
+	-webkit-transition-duration: 0.3s; /* Safari */
+    transition-duration: 0.3s;
+}
+
+tr:hover{
+	background-color: #C6E2FF;
+}
+
+table{
+	border-collapse: collapse;
+	table-layout: auto;
+	height: 10px;
+	table-layout: fixed;
+	overflow: hidden;
+  	word-wrap: break-word;
+}
+
+th, td {
+    padding: 7px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+/* botao ativo*/
+.button{ /* Class */
+	width: 160px; 
+	height: 30px;
+	cursor: pointer;
+	text-decoration: none;
+    color: none;
+    -webkit-transition-duration: 0.2s; /* Safari */
+    transition-duration: 0.2s;
+}
+
+/* botao inativo*/
+.button_disable{
+	width: 160px; 
+	height: 30px;
+	text-decoration: none;
+    color: none;
+    cursor: not-allowed;
+}
+
+.button:hover{
+	box-shadow: 0px 0px 14px 1px rgba(198,226,255,0.5), 0 2px 50px 0 rgba(198,226,255,0.5);
+}
+
+html, body {
+    padding: 0;
+    height: 100%;
+    width: 92%;
+    margin: 0 auto;
+}
+
+#div{
+	width: 600px;
+	height: 800px;
+ 	overflow: auto;
+ 	margin-bottom: 30px;
+}
+
+/* links */
+a{
+   text-decoration: none;
+   color: black;
+}
+
+a:hover{
+    color: blue;
+    font-size: 105%;
+}
+
+#tr:hover{
+	background-color: #F5F5F5;
+}
+
+/* imagem inicial*/
+.imgCRR{
+	height: 100%;
+	width: 215px;
+}
+
+/* campo de pesquisa*/
+.divSearch{
+	margin-top: 35px;
+	margin-bottom: 25px;
+	text-align: center;
+}
+
+/* corpo da tabela */
+tbody {
+ 	width: 200px;
+ 	height: 400px;
+ 	overflow: auto;
+}
+
+#toolbar{
+	height: 22px;
+	width: 85px;
+	border: 1px solid #C5C5C5;
+	background-color: #fffbfa;
+	border-radius: 5px;
+	margin-left: 73.45%;
+	position: absolute; 
+	z-index: 1;
+	opacity: 0.85;
+}
+
+/* div do mapa */
+#mapViewer{
+	border-radius: 5px;
+	border: 1px solid #C5C5C5; 
+	width: 78%; 
+	height: 950px;
+	border-style: outset;
+    margin: 0 auto;
+    position: absolute;
+}
+
+ #viewDiv{
+	border-radius: 5px;
+	border: 1px solid #C5C5C5; 
+	width: 78%; 
+	height: 950px;
+	border-style: outset;
+    margin: 0 auto;
+
+ }
