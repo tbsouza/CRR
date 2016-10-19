@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-br">
 
   	<head>
 
@@ -11,24 +11,23 @@
 		<!-- Titulo da página -->
 		<title> CRR </title>
 
-  		<!-- http://openlayers.org/en/v3.18.2/build/ol.js -->
+		<!-- CSS -->
+		<link type="text/css" rel="stylesheet" href="stylesheet.css"/>
+
+  		<!-- JavaScript Leaflet -->
 		<script src="leaflet.js" type="text/javascript"></script>
-		<!-- http://openlayers.org/en/v3.18.2/css/ol.css -->
+		<!-- CSS Leaflet -->
 		<link rel="stylesheet" href="leaflet.css" type="text/css" >
-		<!-- http://openlayers.org/en/v3.18.2/build/ol.js -->
-		<script src="requirejs.js" type="text/javascript"></script>
 
 		<!-- JQuery -->
 		<script src="jquery-3.0.0.js" ></script>
 
 		<style type="text/css">
-			
-		#map{
-			border: 2px solid black;
-			width: 1000px;
-			height: 900px;
-		}
-
+			#map{
+				border: 2px solid black;
+				width: 1000px;
+				height: 900px;
+			}
 		</style>
 
   	</head>
@@ -43,17 +42,18 @@
   			// cria um novo mapa
   			var map = L.map('map').setView([-15, -55], 5);
 
+  			// Seleciona o base map
   			L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
 			    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors | CRR '
 			}).addTo(map);
 
+  			// Tipos de BaseMaps
   			//http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png
   			//http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png
   			//http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}
   			//http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png
   			//http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png
   			//http://korona.geog.uni-heidelberg.de/tiles/roadsg/x={x}&y={y}&z={z}
-
 
   			// Arquivo GeoJson com informações dos municípios
   			var geojsonObject;
@@ -63,7 +63,6 @@
 				geojsonObject = L.geoJson(json, {style: style, onEachFeature: onEachFeature});
 				geojsonObject.addTo(map);
 			});
-
 
   			// Funcao para diferenciar o estilo de cada feicao
   			function getColor(p) {
@@ -92,6 +91,7 @@
 			function highlightFeature(e) {
 			    var layer = e.target;
 
+			    // estilo da borda ao passar o mouse
 			    layer.setStyle({
 			        weight: 3,
 			        color: '#666',
@@ -139,7 +139,7 @@
 
 			// method that we will use to update the control based on feature properties passed
 			info.update = function (props) {
-			    this._div.innerHTML = '<h4>População por Município</h4>' +  (props ?
+			    this._div.innerHTML = '<h4>População por Município &nbsp;</h4>' +  (props ?
 			        '<b>' + props.nome + '</b><br />' + props.pop_2015 + ' habitantes</sup>'
 			        : ' ');
 			};
@@ -152,14 +152,14 @@
 
 			legend.onAdd = function (map) {
 
-			    var div = L.DomUtil.create('div', 'info legend'),
+			    var div = L.DomUtil.create('div', 'legend'),
 			        grades = [0, 10000, 20000, 90000, 300000, 600000, 2000000],
 			        labels = [];
 
-			    // loop through our density intervals and generate a label with a colored square for each interval
+			    // loop through our population intervals and generate a label with a colored square for each interval
 			    for (var i = 0; i < grades.length; i++) {
 			        div.innerHTML +=
-			            '<i class="legenda" style="background:' + getColor(grades[i] + 1) + '">&nbsp; &nbsp; &nbsp;</i> ' +
+			            '<i class="legenda" style="background:' + getColor(grades[i] + 1) + '"></i> ' +
 			            grades[i] + (grades[i + 1] ? ' &ndash; ' + grades[i + 1] + '<br>' : ' +');
 			    }
 
@@ -167,9 +167,6 @@
 			};
 
 			legend.addTo(map);
-
-
-
 
   		</script>
 

@@ -120,6 +120,7 @@ a:hover{
 	margin-top: 35px;
 	margin-bottom: 25px;
 	text-align: center;
+	position: block;
 }
 
 /* corpo da tabela */
@@ -162,3 +163,35 @@ tbody {
     margin: 0 auto;
 
  }
+
+/* informacoes dos municipios ao passar mouse */
+ .info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+}
+
+/* legenda do mapa */
+.legend {
+    line-height: px;
+    color: #777;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.85);
+    padding-right: 5px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.85;
+}
