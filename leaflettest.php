@@ -36,7 +36,7 @@
   			// cria um novo mapa
   			var map = L.map('map').setView([-15, -55], 5);
 
-  			// Seleciona o base map
+  			// Seleciona o basemap
   			L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
 			    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors | CRR Inatel'
 			}).addTo(map);
@@ -53,7 +53,7 @@
   			var geojsonObject;
 
   			// Abre o GeoJson com os dados
-  			$.getJSON("pop_2015_json.geojson", function(json) {
+  			$.getJSON("informacoes_geojson.geojson", function(json) {
 				geojsonObject = L.geoJson(json, {style: style, onEachFeature: onEachFeature});
 				geojsonObject.addTo(map);
 			});
@@ -76,7 +76,7 @@
 			        weight: 1,
 			        opacity: 0.9,
 			        color: 'grey',
-			        dashArray: '3',
+			        dashArray: '',
 			        fillOpacity: 0.9
 			    };
 			}
@@ -85,13 +85,12 @@
 			function highlightFeature(e) {
 			    var layer = e.target;
 
-			    // estilo da borda ao passar o mouse
+			    // estilo ao passar o mouse
 			    layer.setStyle({
 			        weight: 3,
 			        color: '#666',
 			        dashArray: '',
-			        fillOpacity: 0.7,
-			        opacity: 1
+			        fillOpacity: 0.6,
 			    });
 
 			    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
@@ -134,9 +133,9 @@
 			// method that we will use to update the control based on feature properties passed
 			info.update = function (props) {
 
-			    this._div.innerHTML = '<h4>População por Município &nbsp;</h4>' +  (props ?
+			    this._div.innerHTML = '<h4>População por Município &nbsp;&nbsp;&nbsp;</h4>' + (props  ?
 			        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.pop_2015) + '"></i>' + 
-			        	props.nome + '</b><br />' + props.pop_2015 + ' habitantes</sup>' : ' ');
+			        	props.nome + ', ' +  props.uf + '</b><br />' + props.pop_2015 + ' habitantes</sup>'  : ' ');
 			};
 
 			info.addTo(map);
@@ -148,8 +147,7 @@
 			legend.onAdd = function (map) {
 
 			    var div = L.DomUtil.create('div', 'legend'),
-			        grades = [0, 10000, 20000, 90000, 300000, 600000, 2000000],
-			        labels = [];
+			        grades = [0, 10000, 20000, 90000, 300000, 600000, 2000000];
 
 			    // loop through our population intervals and generate a label with a colored square for each interval
 			    for (var i = 0; i < grades.length; i++) {
@@ -163,8 +161,67 @@
 
 			legend.addTo(map);
 
-  		</script>
 
+
+			// Home location
+			var lat = -15;
+			var lon = -55;
+			var zoom = 5;
+
+			// ************************************************************************************************************
+			// Insere botao centralizar mapa
+
+			var zoomCenter =  L.Control.extend({
+
+			  options: {
+			    position: 'topleft'
+			  },
+
+			  onAdd: function (map) {
+			    var container = L.DomUtil.create('input');
+			    container.type="button";
+			    container.title="zoom to center";
+			    container.value = "aa";
+			    container.icon = "ui-icon-arrow-4-diag";
+
+			    container.style.backgroundColor = 'white';     
+			    //container.style.backgroundImage = "url(http://t1.gstatic.com/images?q=tbn:ANd9GcR6FCUMW5bPn8C4PbKak2BJQQsmC-K9-mbYBeFZm1ZM2w2GRy40Ew)";
+			    container.style.backgroundSize = "30px 30px";
+			    container.style.width = '30px';
+			    container.style.height = '30px';
+			    
+			    container.onmouseover = function(){
+			      container.style.backgroundColor = 'pink'; 
+			    }
+			    container.onmouseout = function(){
+			      container.style.backgroundColor = 'white'; 
+			    }
+
+			    container.onclick = function(){
+			      centerMap();
+			    }
+
+			    return container;
+			  }
+			});
+
+			//zoomCenter.addTo(map);
+
+			var readyState = function(e){
+			  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+			  map.addControl(new zoomCenter());
+			}
+
+			window.addEventListener('DOMContentLoaded', readyState);
+
+			function centerMap(){
+				map.setView([-15, -55], 5);
+			}
+
+
+
+
+  		</script>
 
   		<br/><br/><br/>
 
