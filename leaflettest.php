@@ -22,20 +22,14 @@
 		<!-- JQuery -->
 		<script src="jquery-3.0.0.js" ></script>
 
-		<style type="text/css">
-			#map{
-				border: 2px solid black;
-				width: 1000px;
-				height: 900px;
-			}
-		</style>
-
   	</head>
 
   	<body>
 
+  		<br/>
+
   		<!-- Campo que sera adicionado o mapa -->
-  		<div id="map" class="map"></div>
+  		<div id="map" class="mapViewer"></div>
 
   		<script type="text/javascript">
   		
@@ -44,7 +38,7 @@
 
   			// Seleciona o base map
   			L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-			    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors | CRR '
+			    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors | CRR Inatel'
 			}).addTo(map);
 
   			// Tipos de BaseMaps
@@ -139,9 +133,10 @@
 
 			// method that we will use to update the control based on feature properties passed
 			info.update = function (props) {
+
 			    this._div.innerHTML = '<h4>População por Município &nbsp;</h4>' +  (props ?
-			        '<b>' + props.nome + '</b><br />' + props.pop_2015 + ' habitantes</sup>'
-			        : ' ');
+			        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.pop_2015) + '"></i>' + 
+			        	props.nome + '</b><br />' + props.pop_2015 + ' habitantes</sup>' : ' ');
 			};
 
 			info.addTo(map);
