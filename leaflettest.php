@@ -19,8 +19,16 @@
 		<!-- CSS Leaflet -->
 		<link rel="stylesheet" href="leaflet.css" type="text/css" >
 
+		<!-- JavaScript EasyButton -->
+		<script src="easybutton.js" type="text/javascript"></script>
+		<!-- CSS EasyButton -->
+		<link rel="stylesheet" href="easybutton.css" type="text/css" >
+
 		<!-- JQuery -->
 		<script src="jquery-3.0.0.js" ></script>
+
+		<!-- JavaScript Toastr -->
+		<script src="toastr.js" type="text/javascript"></script>
 
   	</head>
 
@@ -33,12 +41,32 @@
 
   		<script type="text/javascript">
   		
+  			// Configura o toaster
+  			toastr.options = {
+				"closeButton": false,
+				"debug": false,
+				"positionClass": "toast-bottom-full-width",
+				"onclick": null,
+				"showDuration": "300",
+				"hideDuration": "3000",
+				"timeOut": "5000",
+				"extendedTimeOut": "1000",
+				"showEasing": "swing",
+				"hideEasing": "linear",
+				"showMethod": "fadeIn",
+				"hideMethod": "fadeOut",
+				"newestOnTop": true,
+ 				"progressBar": true
+			}
+
+
   			// cria um novo mapa
   			var map = L.map('map').setView([-15, -55], 5);
 
   			// Seleciona o basemap
   			L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-			    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors | CRR Inatel'
+			    attribution: '&copy; <a target="_blank" href="http://www.inatel.br/crr/">CRR</a> Inatel',
+			    minZoom: 3, maxZoom: 13
 			}).addTo(map);
 
   			// Tipos de BaseMaps
@@ -48,6 +76,7 @@
   			//http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png
   			//http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png
   			//http://korona.geog.uni-heidelberg.de/tiles/roadsg/x={x}&y={y}&z={z}
+
 
   			// Arquivo GeoJson com informações dos municípios
   			var geojsonObject;
@@ -162,63 +191,74 @@
 			legend.addTo(map);
 
 
+			// Posição do centro
+			var lat = -15, lon = -55, zoom = 5;
 
-			// Home location
-			var lat = -15;
-			var lon = -55;
-			var zoom = 5;
+			// variáveis do marcador e popup
+			var circle=null, popup=null;
 
-			// ************************************************************************************************************
-			// Insere botao centralizar mapa
+			// Cria um toolbar para os botoes
+			var buttons = [
 
-			var zoomCenter =  L.Control.extend({
+				// Botão para centralizar
+				L.easyButton('<strong>&Uparrow;</strong>', function(btn, map){
+				    map.setView([lat, lon], zoom);
+				}, 'Centro'),
 
-			  options: {
-			    position: 'topleft'
-			  },
+				// Botão para localizar posição do usuário
+				L.easyButton('<strong>&xodot;</strong>', function(btn, map){
+				    var location = map.locate({setView : true, maxZoom: 10});
+				}, 'Localizar'),
 
-			  onAdd: function (map) {
-			    var container = L.DomUtil.create('input');
-			    container.type="button";
-			    container.title="zoom to center";
-			    container.value = "aa";
-			    container.icon = "ui-icon-arrow-4-diag";
+				// Botão para limpar marcadores
+				L.easyButton('<strong>&bemptyv;</strong>', function(btn, map){
+				    removeMarkers();
+				}, 'Limpar')
+			];
 
-			    container.style.backgroundColor = 'white';     
-			    //container.style.backgroundImage = "url(http://t1.gstatic.com/images?q=tbn:ANd9GcR6FCUMW5bPn8C4PbKak2BJQQsmC-K9-mbYBeFZm1ZM2w2GRy40Ew)";
-			    container.style.backgroundSize = "30px 30px";
-			    container.style.width = '30px';
-			    container.style.height = '30px';
-			    
-			    container.onmouseover = function(){
-			      container.style.backgroundColor = 'pink'; 
-			    }
-			    container.onmouseout = function(){
-			      container.style.backgroundColor = 'white'; 
-			    }
+			// adiciona o toolbar no mapa
+			L.easyBar(buttons).addTo(map);
 
-			    container.onclick = function(){
-			      centerMap();
-			    }
+			// Funções e localização
+			// Ao encontrar localização
+			function onLocationFound(e) {
 
-			    return container;
-			  }
-			});
+				popup = L.popup().setLatLng(e.latlng).setContent("Você está aqui!").openOn(map);
 
-			//zoomCenter.addTo(map);
-
-			var readyState = function(e){
-			  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-			  map.addControl(new zoomCenter());
+				circle = L.circle(e.latlng, {
+				    color: 'red',
+				    fillColor: '#f03',
+				    fillOpacity: 0.4,
+				    radius: 650
+				}).addTo(map);
 			}
 
-			window.addEventListener('DOMContentLoaded', readyState);
+			map.on('locationfound', onLocationFound);
 
-			function centerMap(){
-				map.setView([-15, -55], 5);
+			// Não encontrar localização
+			function onLocationError(e) {
+			    alert(e.message + "Não foi possível encontrar sua localização");
 			}
 
+			map.on('locationerror', onLocationError);
 
+
+			// Funão para limpar os marcadores
+			function removeMarkers(){
+				if( circle != null ) {
+				    map.removeLayer(circle);
+				    circle=null;
+				}
+
+				if( popup != null ){
+ 					map.removeLayer(popup);
+				    popup=null;
+				}
+
+				//toastr.success("Message will come here", "Title");
+			}
+
+			
 
 
   		</script>
