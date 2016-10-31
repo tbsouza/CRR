@@ -39,15 +39,29 @@
 
   	</head>
 
-  	<body>
+  	<body onload="getGJSON()">
 
   		<br/>
 
-  		<!-- Campo que sera adicionado o mapa -->
-  		<div id="map" class="mapViewer"></div>
+	  	<!-- Campo que sera adicionado o mapa -->
+	  	<div id="map" class="mapViewer"></div>
 
   		<script type="text/javascript">
   		
+  			// Arquivo GeoJson com informações dos municípios
+  			var geojsonObject;
+  			var gjson;
+
+  			function getGJSON(){
+	  			// Abre o GeoJson com os dados
+	  			$.getJSON("informacoes_geojson.geojson", function(json) {
+					geojsonObject = L.geoJson(json, {style: style, onEachFeature: onEachFeature});
+					geojsonObject.addTo(map);
+					gjson = json;
+				});
+  			}
+
+
   			// configura o toastr (toast messages)
   			configureToast();
 
@@ -81,6 +95,10 @@
 			    minZoom: 3, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true, reuseTiles: true
 			}).addTo(map);
 
+			map.onRemove = function(){
+				toastr.info("Camada removida");
+			}
+
 
   			// Tipos de BaseMaps
   			//http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png
@@ -90,15 +108,6 @@
   			//http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png
   			//http://korona.geog.uni-heidelberg.de/tiles/roadsg/x={x}&y={y}&z={z}
 
-
-  			// Arquivo GeoJson com informações dos municípios
-  			var geojsonObject;
-
-  			// Abre o GeoJson com os dados
-  			$.getJSON("informacoes_geojson.geojson", function(json) {
-				geojsonObject = L.geoJson(json, {style: style, onEachFeature: onEachFeature});
-				geojsonObject.addTo(map);
-			});
 
   			// Funcao para diferenciar o estilo de cada feicao
   			function getColor(p) {
@@ -135,10 +144,6 @@
 			        fillOpacity: 0.6,
 			    });
 
-			    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-			        layer.bringToFront();
-			    }
-
 			    info.update(layer.feature.properties);
 			}
 
@@ -152,6 +157,17 @@
 			// Da zoom para feição ao clicar
 			function zoomToFeature(e) {
 			    map.fitBounds(e.target.getBounds());
+
+			    if( circle!=null ){
+			    	map.removeLayer(circle);
+			    }
+
+			    circle = L.circle(e.latlng, {
+				    color: 'red',
+				    fillColor: '#f03',
+				    fillOpacity: 0.4,
+				    radius: 650
+				}).addTo(map);
 			}
 
 			// Aplica as funcionalidades a cada feição
@@ -217,19 +233,19 @@
 			var buttons = [
 
 				// Botão para centralizar
-				L.easyButton('<strong>&Uparrow;</strong>', function(btn, map){
+				L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
 				    map.setView([lat, lon], zoom);
-				}, 'Centralizar'),
+				}, 'Center'),
 
 				// Botão para localizar posição do usuário
-				L.easyButton('<strong>&xodot;</strong>', function(btn, map){
+				L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
 				    map.locate({setView : true, maxZoom: 10});
-				}, 'Localizar'),
+				}, 'Locate'),
 
 				// Botão para limpar marcadores
-				L.easyButton('<strong>&bemptyv;</strong>', function(btn, map){
+				L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
 				    removeMarkers();
-				}, 'Limpar')
+				}, 'Clear')
 			];
 
 			// adiciona o toolbar no mapa
@@ -240,6 +256,10 @@
 			function onLocationFound(e) {
 
 				popup = L.popup().setLatLng(e.latlng).setContent("Você está aqui!").openOn(map);
+
+				if( circle!=null ){
+			    	map.removeLayer(circle);
+			    }
 
 				circle = L.circle(e.latlng, {
 				    color: 'red',
@@ -306,18 +326,27 @@
 			};
 
 			command.addTo(map);
+*/
 
 
 			// add the event handler
 			function check0Clicked() {
 
+				if( this.checked ){
+					geojsonObject = L.geoJson(gjson, {style: style, onEachFeature: onEachFeature});
+					geojsonObject.addTo(map);
+				}else{
+					//geojsonObject.clearLayers();
+					map.removeLayer( geojsonObject );
+					geojsonObject = null;
 
-			   alert("Clicked, checked = " + this.checked);
+				}
+
+			    console.log("Clicked, checked = " + this.checked);
 			}
 
 			document.getElementById("check0").addEventListener("click", check0Clicked, true);
 
-*/
 
 
 
