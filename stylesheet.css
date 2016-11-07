@@ -6,7 +6,7 @@
 
 /* body do html*/
 body{ 
-	background-color: #F5F5F5;
+	background-color: white;
 }
 
 /* titulos h2*/	
@@ -144,17 +144,16 @@ tbody {
 }
 
 /* div do mapa */
-#mapViewer{
-	border-radius: 5px;
+.mapViewer{
+	border-radius: 2px;
 	border: 1px solid #C5C5C5; 
 	width: 78%; 
-	height: 950px;
-	border-style: outset;
+	height: 945px;
     margin: 0 auto;
     position: absolute;
 }
 
- #viewDiv{
+#viewDiv{
 	border-radius: 5px;
 	border: 1px solid #C5C5C5; 
 	width: 78%; 
@@ -165,7 +164,7 @@ tbody {
  }
 
 /* informacoes dos municipios ao passar mouse */
- .info {
+.info {
     padding: 6px 8px;
     font: 14px/16px Arial, Helvetica, sans-serif;
     background: rgba(255,255,255,0.85);
@@ -180,18 +179,45 @@ tbody {
 
 /* legenda do mapa */
 .legend {
-    line-height: px;
+    line-height: 16px;
     color: #777;
     border-radius: 5px;
     background: rgba(255,255,255,0.85);
     padding-right: 5px;
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    width: 155px;
+
 }
 
 .legend i {
     width: 18px;
-    height: 18px;
+    height: 20px;
     float: left;
     margin-right: 8px;
     opacity: 0.85;
+}
+
+.info_legenda
+{
+	width: 11px;
+    height: 11px;
+    float: left;
+    margin-right: 5px;
+    opacity: 0.85;
+    border-radius: 100%;
+
+}
+
+.checkbox {
+	line-height: px;
+    color: #777;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.85);
+    padding-right: 5px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+
+}
+
+.imgButton{
+	margin-left: -7px;
 }
