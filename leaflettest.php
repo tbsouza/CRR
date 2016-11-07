@@ -11,6 +11,9 @@
 		<!-- Titulo da página -->
 		<title> CRR </title>
 
+		<!-- JQuery -->
+		<script src="jquery-3.0.0.js" ></script>
+
 		<!-- CSS -->
 		<link type="text/css" rel="stylesheet" href="stylesheet.css"/>
 
@@ -23,9 +26,6 @@
 		<script src="easybutton.js" type="text/javascript"></script>
 		<!-- CSS EasyButton -->
 		<link rel="stylesheet" href="easybutton.css" type="text/css" >
-
-		<!-- JQuery -->
-		<script src="jquery-3.0.0.js" ></script>
 
 		<!-- JavaScript Toastr -->
 		<script src="toastr.js" type="text/javascript"></script>
@@ -48,15 +48,29 @@
 
   		<script type="text/javascript">
   		
-  			// Arquivo GeoJson com informações dos municípios
-  			var geojsonObject;
+  			// Objeto GeoJson com informações dos municípios
+  			var geojsonObject, geojsonObject0, geojsonObject1, geojsonObject2,
+  			    geojsonObject3, geojsonObject4, geojsonObject5, geojsonObject6;
   			var gjson;
 
   			function getGJSON(){
 	  			// Abre o GeoJson com os dados
 	  			$.getJSON("informacoes_geojson.geojson", function(json) {
+					// Camada principal
 					geojsonObject = L.geoJson(json, {style: style, onEachFeature: onEachFeature});
+
+					// Camadas dos Filtros
+					geojsonObject0 = L.geoJson(json, {style: style0});
+					geojsonObject1 = L.geoJson(json, {style: style1});
+					geojsonObject2 = L.geoJson(json, {style: style2});
+					geojsonObject3 = L.geoJson(json, {style: style3});
+					geojsonObject4 = L.geoJson(json, {style: style4});
+					geojsonObject5 = L.geoJson(json, {style: style5});
+					geojsonObject6 = L.geoJson(json, {style: style6});
+
+					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
+					
 					gjson = json;
 				});
   			}
@@ -95,29 +109,22 @@
 			    minZoom: 3, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true, reuseTiles: true
 			}).addTo(map);
 
+
+  			// Mensagem de notificação
 			map.onRemove = function(){
 				toastr.info("Camada removida");
 			}
 
 
-  			// Tipos de BaseMaps
-  			//http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png
-  			//http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png
-  			//http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}
-  			//http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png
-  			//http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png
-  			//http://korona.geog.uni-heidelberg.de/tiles/roadsg/x={x}&y={y}&z={z}
-
-
   			// Funcao para diferenciar o estilo de cada feicao
   			function getColor(p) {
-			    return p > 2000000  ? '#023858' :
-			           p > 600000   ? '#045a8d' :
-			           p > 300000   ? '#0570b0' :
-			           p > 90000    ? '#3690c0' :
-			           p > 20000    ? '#74a9cf' :
-			           p > 10000    ? '#a6bddb' :
-			                          '#d0d1e6';
+			    return p > 2000000 ? '#023858' :
+			           p > 600000  ? '#045a8d' :
+			           p > 300000  ? '#0570b0' :
+			           p > 90000   ? '#3690c0' :
+			           p > 20000   ? '#74a9cf' :
+			           p > 10000   ? '#a6bddb' :
+			                         '#d0d1e6';
 			}
 
 			// Funcao para aplicar o estilo padrão
@@ -207,15 +214,15 @@
 			    var div = L.DomUtil.create('div', 'legend'),
 			        grades = [0, 10000, 20000, 90000, 300000, 600000, 2000000];
 
+			    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filter <br> ';
+
 			    // loop through our population intervals and generate a label with a colored square for each interval
 			    for (var i = 0; i < grades.length; i++) {
 			        div.innerHTML +=
 			            '<i class="legenda" style="background:' + getColor(grades[i] + 1) + '"></i><input id="check' + i + 
-			            '" checked=true type="checkbox"/> ' +
+			            '" type="checkbox" disabled/> ' +
 			            grades[i] + (grades[i + 1] ? ' &ndash; ' + grades[i + 1] + '<br>' : ' +');
 			    }
-
-			    //</i><input id="check' + i + '" checked=true type="checkbox"/>
 
 			    return div;
 			};
@@ -305,56 +312,264 @@
 			}
 
 
-/*
-			// Adiciona checkbox separado da legenda
-			// create the checkbox control
-			var command = L.control({position: 'bottomleft'});
+			// Funcao para aplicar os estilos dos filtros
+			function style0(feature) {
 
-			command.onAdd = function (map) {
-			    var div = L.DomUtil.create('div', 'checkbox');
+				var pop = feature.properties.pop_2015;
 
-			    div.innerHTML = '<form><input id="check1" checked=true type="checkbox"/>0 - 10000</form>';
-			    div.innerHTML += '<form><input id="check2" checked=true type="checkbox"/>10000 - 20000</form>';
-			    div.innerHTML += '<form><input id="check3" checked=true type="checkbox"/>20000 - 90000</form>';
-			    div.innerHTML += '<form><input id="check4" checked=true type="checkbox"/>90000 - 300000</form>';
-			    div.innerHTML += '<form><input id="check5" checked=true type="checkbox"/>300000 - 600000</form>';
-			    div.innerHTML += '<form><input id="check6" checked=true type="checkbox"/>600000 - 2000000</form>';
-			    div.innerHTML += '<form><input id="check7" checked=true type="checkbox"/>2000000 +</form>';
-
-
-			    return div;
-			};
-
-			command.addTo(map);
-*/
-
-
-			// add the event handler
-			function check0Clicked() {
-
-				if( this.checked ){
-					geojsonObject = L.geoJson(gjson, {style: style, onEachFeature: onEachFeature});
-					geojsonObject.addTo(map);
+				if( pop < 10000 ){
+					return {
+				        fillColor: '#d0d1e6',
+				        weight: 1,
+				        opacity: 0.98,
+				        color: 'grey',
+				        dashArray: '',
+				        fillOpacity: 0.9
+				    };
 				}else{
-					//geojsonObject.clearLayers();
-					map.removeLayer( geojsonObject );
-					geojsonObject = null;
-
-				}
-
-			    console.log("Clicked, checked = " + this.checked);
+					return transparentColor();
+				}  
 			}
 
-			document.getElementById("check0").addEventListener("click", check0Clicked, true);
+			function style1(feature) {
+
+				var pop = feature.properties.pop_2015;
+
+				if( pop >= 10000 && pop < 20000 ){
+					return {
+				        fillColor: '#a6bddb',
+				        weight: 1,
+				        opacity: 0.98,
+				        color: 'grey',
+				        dashArray: '',
+				        fillOpacity: 0.9
+				    };
+				}else{
+					return transparentColor();
+				}  
+			}
+
+			
+			function style2(feature) {
+
+				var pop = feature.properties.pop_2015;
+
+				if( pop >= 20000 && pop < 90000 ){
+					return {
+				        fillColor: '#74a9cf',
+				        weight: 1,
+				        opacity: 0.98,
+				        color: 'grey',
+				        dashArray: '',
+				        fillOpacity: 0.9
+				    };
+				}else{
+					return transparentColor();
+				}  
+			}
+
+			function style3(feature) {
+
+				var pop = feature.properties.pop_2015;
+
+				if( pop >= 90000 && pop < 300000 ){
+					return {
+				        fillColor: '#3690c0',
+				        weight: 1,
+				        opacity: 0.98,
+				        color: 'grey',
+				        dashArray: '',
+				        fillOpacity: 0.9
+				    };
+				}else{
+					return transparentColor();
+				}  
+			}
+
+			function style4(feature) {
+
+				var pop = feature.properties.pop_2015;
+
+				if( pop >= 300000 && pop < 600000 ){
+					return {
+				        fillColor: '#0570b0',
+				        weight: 1,
+				        opacity: 0.98,
+				        color: 'grey',
+				        dashArray: '',
+				        fillOpacity: 0.9
+				    };
+				}else{
+					return transparentColor();
+				}  
+			}
+
+			function style5(feature) {
+
+				var pop = feature.properties.pop_2015;
+
+				if( pop >= 600000 && pop < 2000000 ){
+					return {
+				        fillColor: '#045a8d',
+				        weight: 1,
+				        opacity: 0.98,
+				        color: 'grey',
+				        dashArray: '',
+				        fillOpacity: 0.9
+				    };
+				}else{
+					return transparentColor();
+				}  
+			}
+
+			function style6(feature) {
+
+				var pop = feature.properties.pop_2015;
+
+				if( pop >= 2000000 ){
+					return {
+				        fillColor: '#023858',
+				        weight: 1,
+				        opacity: 0.98,
+				        color: 'grey',
+				        dashArray: '',
+				        fillOpacity: 0.9
+				    };
+				}else{
+					return transparentColor();
+				}  
+			}
+
+			// Função que retorna cor transparente
+			function transparentColor(){
+				return {
+				    fillColor: '#00000000',
+				    weight: 1,
+				    opacity: 0.98,
+				    color: 'grey',
+				    dashArray: '',
+				    fillOpacity: 0.9
+				};
+			}
 
 
+			// Ação do Checkbox do Filtro
+			function checkClicked() {
+
+				// Verifica se os checkboxes estão selecionados para ativar o filtro
+
+				if( $('#check0').is(":checked") ){
+					geojsonObject0.addTo(map);
+				}else{
+					map.removeLayer(geojsonObject0);
+				}
+
+				if( $('#check1').is(":checked") ){
+					geojsonObject1.addTo(map);
+				}else{
+					map.removeLayer(geojsonObject1);
+				}
+
+				if( $('#check2').is(":checked") ){
+					geojsonObject2.addTo(map);
+				}else{
+					map.removeLayer(geojsonObject2);
+				}
+
+				if( $('#check3').is(":checked") ){
+					geojsonObject3.addTo(map);
+				}else{
+					map.removeLayer(geojsonObject3);
+				}
+
+				if( $('#check4').is(":checked") ){
+					geojsonObject4.addTo(map);
+				}else{
+					map.removeLayer(geojsonObject4);
+				}
+
+				if( $('#check5').is(":checked") ){
+					geojsonObject5.addTo(map);
+				}else{
+					map.removeLayer(geojsonObject5);
+				}
+
+				if( $('#check6').is(":checked") ){
+					geojsonObject6.addTo(map);
+				}else{
+					map.removeLayer(geojsonObject6);
+				}
+			}
+
+			// Adiciona ação dos checkboxes
+			document.getElementById("check0").addEventListener("click", checkClicked, true);
+			document.getElementById("check1").addEventListener("click", checkClicked, true);
+			document.getElementById("check2").addEventListener("click", checkClicked, true);
+			document.getElementById("check3").addEventListener("click", checkClicked, true);
+			document.getElementById("check4").addEventListener("click", checkClicked, true);
+			document.getElementById("check5").addEventListener("click", checkClicked, true);
+			document.getElementById("check6").addEventListener("click", checkClicked, true);
+
+
+			function removeFilter(){
+				map.removeLayer(geojsonObject0);
+				map.removeLayer(geojsonObject1);
+			}
+
+
+			// Ação do Checkbox do Filtro
+			function checkFilter() {
+
+				// Habilita ou desabilita os checkboxes dos filtros
+				if( this.checked ){
+					$('#check0').removeAttr("disabled");
+					$('#check1').removeAttr("disabled");
+					$('#check2').removeAttr("disabled");
+					$('#check3').removeAttr("disabled");
+					$('#check4').removeAttr("disabled");
+					$('#check5').removeAttr("disabled");
+					$('#check6').removeAttr("disabled");
+
+					// Remove a camada principal do mapa
+					map.removeLayer(geojsonObject);
+
+					// Verifica as camadas dos filtros
+					checkClicked();
+
+				}else{
+					// Desabilita checkboxes
+					$('#check0').attr("disabled", true);
+					$('#check1').attr("disabled", true);
+					$('#check2').attr("disabled", true);
+					$('#check3').attr("disabled", true);
+					$('#check4').attr("disabled", true);
+					$('#check5').attr("disabled", true);
+					$('#check6').attr("disabled", true);
+
+					// Desmarca checkboxes
+					$('#check0').prop("checked", false);
+					$('#check1').prop("checked", false);
+					$('#check2').prop("checked", false);
+					$('#check3').prop("checked", false);
+					$('#check4').prop("checked", false);
+					$('#check5').prop("checked", false);
+					$('#check6').prop("checked", false);
+
+					removeFilter();
+
+					// Adiciona a camada principal
+					geojsonObject.addTo(map);
+
+
+				}
+			}
+
+			document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
 
 
 
   		</script>
 
-
-  		<br/><br/><br/>
 
   	</body>
 
