@@ -125,7 +125,7 @@
 			    return {
 			        fillColor: getColor(feature.properties.pop_2015),
 			        weight: 1,
-			        opacity: 0.9,
+			        opacity: 0.98,
 			        color: 'grey',
 			        dashArray: '',
 			        fillOpacity: 0.9
@@ -138,10 +138,10 @@
 
 			    // estilo ao passar o mouse
 			    layer.setStyle({
-			        weight: 3,
-			        color: '#666',
+			        weight: 4,
+			        color: '#4D4D4D',
 			        dashArray: '',
-			        fillOpacity: 0.6,
+			        fillOpacity: 1
 			    });
 
 			    info.update(layer.feature.properties);
