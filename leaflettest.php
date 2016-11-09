@@ -49,24 +49,14 @@
   		<script type="text/javascript">
   		
   			// Objeto GeoJson com informações dos municípios
-  			var geojsonObject, geojsonObject0, geojsonObject1, geojsonObject2,
-  			    geojsonObject3, geojsonObject4, geojsonObject5, geojsonObject6;
+  			var geojsonObject, geoObject;
   			var gjson;
 
   			function getGJSON(){
 	  			// Abre o GeoJson com os dados
 	  			$.getJSON("informacoes_geojson.geojson", function(json) {
-					// Camada principal
+					// Cria a camada principal a partir do GEOJson
 					geojsonObject = L.geoJson(json, {style: style, onEachFeature: onEachFeature});
-
-					// Camadas dos Filtros
-					geojsonObject0 = L.geoJson(json, {style: style0});
-					geojsonObject1 = L.geoJson(json, {style: style1});
-					geojsonObject2 = L.geoJson(json, {style: style2});
-					geojsonObject3 = L.geoJson(json, {style: style3});
-					geojsonObject4 = L.geoJson(json, {style: style4});
-					geojsonObject5 = L.geoJson(json, {style: style5});
-					geojsonObject6 = L.geoJson(json, {style: style6});
 
 					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
@@ -106,9 +96,10 @@
   			// Seleciona o basemap
   			L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
 			    attribution: '&copy; <a target="_blank" href="http://www.inatel.br/crr/">CRR</a> Inatel',
-			    minZoom: 3, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true, reuseTiles: true
+			    minZoom: 4, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true
 			}).addTo(map);
 
+//, reuseTiles: true 
 
   			// Mensagem de notificação
 			map.onRemove = function(){
@@ -116,7 +107,7 @@
 			}
 
 
-  			// Funcao para diferenciar o estilo de cada feicao
+  			// Funcao para diferenciar o estilo de cada feicao (padrão)
   			function getColor(p) {
 			    return p > 2000000 ? '#023858' :
 			           p > 600000  ? '#045a8d' :
@@ -216,13 +207,17 @@
 
 			    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filter <br> ';
 
+			    div.innerHTML += '<form action="">';
+
 			    // loop through our population intervals and generate a label with a colored square for each interval
 			    for (var i = 0; i < grades.length; i++) {
 			        div.innerHTML +=
-			            '<i class="legenda" style="background:' + getColor(grades[i] + 1) + '"></i><input id="check' + i + 
-			            '" type="checkbox" disabled/> ' +
+			            '<i class="legenda" style="background:' + getColor(grades[i] + 1) + '"/></i><input id="check' + i + 
+			            '" type="radio" disabled/> ' +
 			            grades[i] + (grades[i + 1] ? ' &ndash; ' + grades[i + 1] + '<br>' : ' +');
 			    }
+
+			    div.innerHTML += '</form>';
 
 			    return div;
 			};
@@ -293,7 +288,7 @@
 			map.on('locationerror', onLocationError);
 
 
-			// Funão para limpar os marcadores
+			// Função para limpar os marcadores
 			function removeMarkers(){
 				
 				if( circle != null || popup != null ){
@@ -349,7 +344,6 @@
 				}  
 			}
 
-			
 			function style2(feature) {
 
 				var pop = feature.properties.pop_2015;
@@ -452,70 +446,126 @@
 				};
 			}
 
+			function check0Clicked(){
+				removeFilter();
 
-			// Ação do Checkbox do Filtro
-			function checkClicked() {
+				geoObject = L.geoJson(gjson, {style: style0});
+				//, onEachFeature: onEachFeature
 
-				// Verifica se os checkboxes estão selecionados para ativar o filtro
+				geoObject.addTo(map);
 
-				if( $('#check0').is(":checked") ){
-					geojsonObject0.addTo(map);
-				}else{
-					map.removeLayer(geojsonObject0);
-				}
+				$('#check1').prop("checked", false);
+				$('#check2').prop("checked", false);
+				$('#check3').prop("checked", false);
+				$('#check4').prop("checked", false);
+				$('#check5').prop("checked", false);
+				$('#check6').prop("checked", false);
+			}
 
-				if( $('#check1').is(":checked") ){
-					geojsonObject1.addTo(map);
-				}else{
-					map.removeLayer(geojsonObject1);
-				}
+			function check1Clicked(){
+				removeFilter();
 
-				if( $('#check2').is(":checked") ){
-					geojsonObject2.addTo(map);
-				}else{
-					map.removeLayer(geojsonObject2);
-				}
+				geoObject = L.geoJson(gjson, {style: style1});
 
-				if( $('#check3').is(":checked") ){
-					geojsonObject3.addTo(map);
-				}else{
-					map.removeLayer(geojsonObject3);
-				}
+				geoObject.addTo(map);
 
-				if( $('#check4').is(":checked") ){
-					geojsonObject4.addTo(map);
-				}else{
-					map.removeLayer(geojsonObject4);
-				}
+				$('#check0').prop("checked", false);
+				$('#check2').prop("checked", false);
+				$('#check3').prop("checked", false);
+				$('#check4').prop("checked", false);
+				$('#check5').prop("checked", false);
+				$('#check6').prop("checked", false);
+			}
 
-				if( $('#check5').is(":checked") ){
-					geojsonObject5.addTo(map);
-				}else{
-					map.removeLayer(geojsonObject5);
-				}
+			function check2Clicked(){
+				removeFilter();
 
-				if( $('#check6').is(":checked") ){
-					geojsonObject6.addTo(map);
-				}else{
-					map.removeLayer(geojsonObject6);
-				}
+				geoObject = L.geoJson(gjson, {style: style2});
+
+				geoObject.addTo(map);
+
+				$('#check0').prop("checked", false);
+				$('#check1').prop("checked", false);
+				$('#check3').prop("checked", false);
+				$('#check4').prop("checked", false);
+				$('#check5').prop("checked", false);
+				$('#check6').prop("checked", false);
+			}
+
+			function check3Clicked(){
+				removeFilter();
+
+				geoObject = L.geoJson(gjson, {style: style3});
+
+				geoObject.addTo(map);
+
+				$('#check0').prop("checked", false);
+				$('#check1').prop("checked", false);
+				$('#check2').prop("checked", false);
+				$('#check4').prop("checked", false);
+				$('#check5').prop("checked", false);
+				$('#check6').prop("checked", false);
+			}
+
+			function check4Clicked(){
+				removeFilter();
+
+				geoObject = L.geoJson(gjson, {style: style4});
+
+				geoObject.addTo(map);
+
+				$('#check0').prop("checked", false);
+				$('#check1').prop("checked", false);
+				$('#check2').prop("checked", false);
+				$('#check3').prop("checked", false);
+				$('#check5').prop("checked", false);
+				$('#check6').prop("checked", false);
+			}
+
+			function check5Clicked(){
+				removeFilter();
+
+				geoObject = L.geoJson(gjson, {style: style5});
+
+				geoObject.addTo(map);
+
+				$('#check0').prop("checked", false);
+				$('#check1').prop("checked", false);
+				$('#check2').prop("checked", false);
+				$('#check3').prop("checked", false);
+				$('#check4').prop("checked", false);
+				$('#check6').prop("checked", false);
+			}
+
+			function check6Clicked(){
+				removeFilter();
+
+				geoObject = L.geoJson(gjson, {style: style6});
+
+				geoObject.addTo(map);
+
+				$('#check0').prop("checked", false);
+				$('#check1').prop("checked", false);
+				$('#check2').prop("checked", false);
+				$('#check3').prop("checked", false);
+				$('#check4').prop("checked", false);
+				$('#check5').prop("checked", false);
 			}
 
 			// Adiciona ação dos checkboxes
-			document.getElementById("check0").addEventListener("click", checkClicked, true);
-			document.getElementById("check1").addEventListener("click", checkClicked, true);
-			document.getElementById("check2").addEventListener("click", checkClicked, true);
-			document.getElementById("check3").addEventListener("click", checkClicked, true);
-			document.getElementById("check4").addEventListener("click", checkClicked, true);
-			document.getElementById("check5").addEventListener("click", checkClicked, true);
-			document.getElementById("check6").addEventListener("click", checkClicked, true);
-
+			document.getElementById("check0").addEventListener("click", check0Clicked, true);
+			document.getElementById("check1").addEventListener("click", check1Clicked, true);
+			document.getElementById("check2").addEventListener("click", check2Clicked, true);
+			document.getElementById("check3").addEventListener("click", check3Clicked, true);
+			document.getElementById("check4").addEventListener("click", check4Clicked, true);
+			document.getElementById("check5").addEventListener("click", check5Clicked, true);
+			document.getElementById("check6").addEventListener("click", check6Clicked, true);
 
 			function removeFilter(){
-				map.removeLayer(geojsonObject0);
-				map.removeLayer(geojsonObject1);
+				if( geoObject != null ){
+					map.removeLayer(geoObject);
+				}
 			}
-
 
 			// Ação do Checkbox do Filtro
 			function checkFilter() {
@@ -555,18 +605,15 @@
 					$('#check5').prop("checked", false);
 					$('#check6').prop("checked", false);
 
+					// Remove todas as camadas de filtros
 					removeFilter();
 
 					// Adiciona a camada principal
 					geojsonObject.addTo(map);
-
-
 				}
 			}
 
 			document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
-
-
 
   		</script>
 
