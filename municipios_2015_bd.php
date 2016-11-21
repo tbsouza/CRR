@@ -1,7 +1,7 @@
 <?php		
 	// Estabelece conexão com o banco
 	try {
-			$connect = new PDO('mysql:host=127.0.0.2;dbname=dados_municipios;charset=utf8mb4', 'root', 'root');
+			$connect = new PDO('mysql:host=127.0.0.2;dbname=dados_municipios;charset=utf8mb4', 'user', 'user');
 	} catch(PDOException $ex) {
 			echo ($ex->getMessage());
 	}
