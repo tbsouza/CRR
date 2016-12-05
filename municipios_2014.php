@@ -585,7 +585,7 @@
 					map.removeLayer(geojsonObject);
 
 					// Verifica as camadas dos filtros
-					checkClicked();
+					//checkClicked();
 
 				}else{
 					// Desabilita checkboxes
@@ -621,19 +621,22 @@
 
 		<div class="divSearch" > <!-- Campo pesquisar -->
 
+			<p>Alterar data das informações</p>
+
 			<form id="inputData" action="municipios_2015.php">
-   				<input class="button_disable" type="submit" value="2014" disabled="true" />
-   				<input class="button" type="submit" value="2015" />
+   				<input title="Data atual" class="button_disable" type="submit" value="2014" disabled="true" />
+   				<input title="Mudar para 2015" class="button" type="submit" value="2015" />
 			</form>
 
 			<br><br>
 
 			<input id="inputSearch" maxlength="54" type="text" name="text" size="42" placeholder="Por exempo: São Paulo, MG, 2109056">
-			<button class="button" id="buttonSearch" type="button" onclick="btnSearch()">Pesquisar</button>
-			<button class="button" id="buttonAll" type="button" onclick="connect()">Todos os resultados</button>
+			<button title="Pesquisar" class="button" id="buttonSearch" type="button" onclick="btnSearch()">Pesquisar</button>
+			<button title="Exibir todos os resultados" class="button" id="buttonAll" type="button" onclick="connect()">Todos os resultados</button>
 
 		</div>
 
+		<div id="div_table"></div>
 
 		<script type="text/javascript">
 
@@ -662,19 +665,20 @@
 			  	}
 			}
 
-
-			function fncMunicipios(response){
+//*********************************************************************************************
+			function teste(response){
 
 				// verifica se tabela ja exista e limpa
 				var d = document.getElementById("div");
 				var cont = document.body.contains(d);
 
 				if( cont == false ){
+					// div inner
 					var div = document.createElement("div");
 					div.setAttribute('id','div');
 				}else{
 					var div = document.getElementById("div");
-					div.innerHTML = "" ;
+					div.innerHTML = "";
 				}
 				
 				var res = response.split("#");
@@ -686,9 +690,16 @@
 			    if( qtd>0 ){
 				    // cria elementos html
 				    var table = document.createElement("table");
+				    var table2 = document.createElement("table");
+
 				    var tbody = document.createElement("tbody");
+				    var tbody2 = document.createElement("tbody");
+
 				    var center = document.createElement("center");
 				    var br = document.createElement("p");
+
+				    var wrap = document.createElement("div");
+				    wrap.setAttribute('id','wrap');
 
 				    // atribui id aos elementos criados
 				    center.setAttribute('id', 'center');
@@ -711,9 +722,11 @@
 				    th.appendChild(document.createTextNode( "População" ));
 				    tr.appendChild(th);
 
-				    tbody.appendChild(tr);
 
-				    // monta a tabela html
+				    table2.appendChild(tr);
+				    wrap.appendChild(table2);
+
+				    // monta a tabela html (linha a linha)
 				    while( i<(sz-2) ){
 
 				    	var tr = document.createElement("tr");
@@ -746,6 +759,8 @@
 				    center.appendChild(div);
 				    center.appendChild(br);
 
+
+
 				    document.body.appendChild(center);
 
 				    // total de resultados
@@ -765,10 +780,151 @@
 					p.appendChild( document.createTextNode("Nenhum resultado encontrado") );
 					div.appendChild(p);
 				}
+
 			}
 
-		</script>
+//*********************************************************************************************
+			function fncMunicipios(response){
 
+				// verifica se tabela ja exista e limpa
+				var d = document.getElementById("wrap");
+				var cont = document.body.contains(d);
+
+				var div = document.getElementById("div_table");
+
+				if( cont == false ){
+					// div inner
+					var wrap = document.createElement("div");
+			    	wrap.setAttribute('class', 'wrap');
+			    	wrap.setAttribute('id', 'wrap');
+				}else{
+					var wrap = document.getElementById("wrap");
+				}
+				
+				wrap.innerHTML = "";
+				div.innerHTML = "";
+
+				var res = response.split("#");
+			    var sz = res.length;
+			    var i=0;
+			    var columns = 4;
+			    var qtd = (sz-1)/columns;
+
+			    // elemento para pular linha
+				var br = document.createElement("p");
+
+				// cria elementro center para centralizar a div
+				var center = document.createElement("center");
+
+			    if( qtd>0 ){
+
+			    	// div de fora
+			    	var wrap = document.createElement("div");
+			    	wrap.setAttribute('class', 'wrap');
+
+			    	// div de dentro
+			    	var inner = document.createElement("div");
+			    	inner.setAttribute('class', 'inner');
+
+			    	// table do cabeçalho
+			    	var head = document.createElement("table");
+			    	head.setAttribute('class', 'head');
+
+			    	// table do conteudo
+			    	var table = document.createElement("table");
+			    	table.setAttribute('class', 'inner_table');
+
+				    // linha do cabeçalho
+				    var tr = document.createElement("tr");
+
+				    // conteudo do cabeçalho
+				    var td = document.createElement("td");
+				    td.appendChild(document.createTextNode( "Código" ));
+				    tr.appendChild(td);
+					var td = document.createElement("td");
+				    td.appendChild(document.createTextNode( "Município" ));
+				    tr.appendChild(td);
+				    var td = document.createElement("td");
+				    td.appendChild(document.createTextNode( "Estado" ));
+				    tr.appendChild(td);
+				    var td = document.createElement("td");
+				    td.appendChild(document.createTextNode( "População" ));
+				    tr.appendChild(td);
+
+				    // adiciona o cabeçalho na tabela head
+				    head.appendChild( tr );
+
+				    // adiciona a tabela head na div principal
+				    wrap.appendChild( head );
+
+				    // conteudo da tabela (2a table)
+				    while( i<(sz-2) ){
+
+				    	//cria cada linha de conteudo da tabela
+
+				    	var tr = document.createElement("tr");
+				    	
+				    	var td = document.createElement("td");
+				    	td.appendChild(document.createTextNode( res[i] ));
+				    	tr.appendChild(td);
+				    	i++;
+
+				    	var td = document.createElement("td");
+				    	td.appendChild(document.createTextNode( res[i] ));
+				    	tr.appendChild(td);
+				    	i++;
+
+						var td = document.createElement("td");
+				    	td.appendChild(document.createTextNode( res[i] ));
+				    	tr.appendChild(td);
+				    	i++;
+
+				    	var td = document.createElement("td");
+				    	td.appendChild(document.createTextNode( res[i] ));
+				    	tr.appendChild(td);
+				    	i++;
+
+				    	// adiciona a linha na tabela
+				    	table.appendChild(tr);
+				    }
+
+				    // adiciona atable de conteudo na dive interna
+				    inner.appendChild( table );
+
+				    // adiociona na div principal
+				    wrap.appendChild( inner );
+
+				    // total de resultados
+				    wrap.appendChild(br);
+				    var p = document.createElement("p");
+				    //p.setAttribute('id','para');
+				    p.appendChild( document.createTextNode("Total de resultados: " + qtd) );
+				    wrap.appendChild(p);
+
+				    // Data dos dados
+				    var p = document.createElement("p");
+				    p.appendChild( document.createTextNode("Dados de 2014") );
+				    wrap.appendChild(p);
+				    wrap.appendChild(br);
+
+				    // centraliza
+				    center.appendChild( wrap );
+
+				    // adiciona na div_table
+				    div.appendChild(center);
+			    }else{
+			    	// se nenhum resultado foi retornado
+					
+					var p = document.createElement("p");
+
+					p.appendChild( document.createTextNode("Nenhum resultado encontrado!") );
+
+					center.appendChild( p );
+
+					div.appendChild( center );
+				}
+			}
+		</script>
 
 		<script type="text/javascript"> // Script para pesquisar com enter
 			$(document).ready(function(){
@@ -779,9 +935,7 @@
 			});
 		</script>
 
-
 		<script type="text/javascript">
-
 
 			function btnSearch(){ // funcao pesquisar
 
