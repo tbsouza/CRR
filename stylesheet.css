@@ -26,57 +26,6 @@ div{
 	text-align: center;
 }
 
-/* TABELA */
-
-th{
-	text-align: center;
-	border: 0;
-}
-
-thead{
-	display: block;
-	width: 500px;
-	overflow: hidden;
-}
-
-/* Linha da tabela (table row) */
-tr{
-	-webkit-transition-duration: 0.3s; /* Safari */
-    transition-duration: 0.3s;
-}
-
-tr:hover{
-	background-color: #C6E2FF;
-}
-
-table{
-	border-collapse: collapse;
-	table-layout: auto;
-	height: 100px;
-	table-layout: fixed;
-	overflow: hidden;
-  	word-wrap: break-word;
-}
-
-th, td {
-    padding: 7px;
-    text-align: left;
-    vertical-align: top;
-    border-bottom: 1px solid #ddd;
-}
-
-/* corpo da tabela */
-tbody {
-	/*display: block;*/
- 	width: 550px;
- 	height: 100%;
- 	overflow: auto;
-}
-
-#tr:hover{
-	background-color: white;
-}
-
 /* botao ativo*/
 .button{ /* Class */
 	width: 160px; 
@@ -144,21 +93,11 @@ a:hover{
 .mapViewer{
 	border-radius: 2px;
 	border: 1px solid #C5C5C5; 
-	width: 92%; 
-	height: 92%;
+	width: 85%; 
+	height: 90%;
     margin: 0 auto;
    /* position: absolute; */
 }
-
-#viewDiv{
-	border-radius: 5px;
-	border: 1px solid #C5C5C5; 
-	width: 78%; 
-	height: 950px;
-	border-style: outset;
-    margin: 0 auto;
-
- }
 
 /* informacoes dos municipios ao passar mouse */
 .info {
@@ -223,38 +162,70 @@ a:hover{
 	height: 700px;
 }
 
+/* TABELA */
 .wrap {
-    width: 500px;
+    width: 600px;
+    border-bottom: 1px solid #eee;
 }
 
 .wrap table {
     width: 600px;
 }
 
+table{
+	border-collapse: collapse;
+	overflow-x: hidden;
+}
+
 table tr td {
-    padding: 4px;
+    padding: 2px;
     border-bottom: 1px solid #eee;
-    width: 120px;
+    height: 25px;
     table-layout: fixed;
     border-collapse: collapse;
+    word-wrap: break-word;
+    overflow-x: hidden;
+}
+
+/* animação da linha (passar mouse) */
+tr{
+	-webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+}
+
+tr:hover{
+	background-color: #C6E2FF;
 }
 
 table.head tr td {
     background: #eee;
+    font-weight: bold;
 }
 
 .inner{
 	height: 600px;
     width: 600px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.inner_table {
-    height: 300px;
-    width: 300px;
-}
 
-.head tr td{
+table.inner_table tr td{
 	height: 30px;
-	width: 30px;
+}
+
+.inner_table{
+	height: 30px;
+}
+
+.head{
+	height: 30px;
+}
+
+#results{
+    border-top: 1px solid #eee;
+}
+
+#tr:hover{
+	background-color: white;
 }

@@ -97,7 +97,7 @@
 			
 
   			// cria um novo mapa
-  			var map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 5);
+  			var map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 4);
 
   			// Seleciona o basemap
   			L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
@@ -209,7 +209,7 @@
 			        grades = [0, 10000, 20000, 90000, 300000, 600000, 2000000];
 
 			    // checkbox para habilitar o filtro
-			    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filter <br> ';
+			    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filtrar <br> ';
 
 			    // loop through our population intervals and generate a label with a colored square for each interval
 			    for (var i = 0; i < grades.length; i++) {
@@ -226,7 +226,7 @@
 
 
 			// Posição do centro
-			var lat = -15, lon = -55, zoom = 5;
+			var lat = -15, lon = -55, zoom = 4;
 
 			// variáveis do marcador e popup
 			var circle=null, popup=null;
@@ -447,6 +447,7 @@
 				};
 			}
 
+			// Verifica qual botão foi clicado e adiciona a camada no mapa
 			function check0Clicked(){
 				removeFilter();
 
@@ -665,125 +666,7 @@
 			  	}
 			}
 
-//*********************************************************************************************
-			function teste(response){
 
-				// verifica se tabela ja exista e limpa
-				var d = document.getElementById("div");
-				var cont = document.body.contains(d);
-
-				if( cont == false ){
-					// div inner
-					var div = document.createElement("div");
-					div.setAttribute('id','div');
-				}else{
-					var div = document.getElementById("div");
-					div.innerHTML = "";
-				}
-				
-				var res = response.split("#");
-			    var sz = res.length;
-			    var i=0;
-			    var columns = 4;
-			    var qtd = (sz-1)/columns;
-
-			    if( qtd>0 ){
-				    // cria elementos html
-				    var table = document.createElement("table");
-				    var table2 = document.createElement("table");
-
-				    var tbody = document.createElement("tbody");
-				    var tbody2 = document.createElement("tbody");
-
-				    var center = document.createElement("center");
-				    var br = document.createElement("p");
-
-				    var wrap = document.createElement("div");
-				    wrap.setAttribute('id','wrap');
-
-				    // atribui id aos elementos criados
-				    center.setAttribute('id', 'center');
-				    table.setAttribute('id','table');
-				    
-				    // Tópicos da tabela
-				    var tr = document.createElement("tr");
-				    tr.setAttribute('id', 'tr');
-
-				    var th = document.createElement("th");
-				    th.appendChild(document.createTextNode( "Código IBGE" ));
-				    tr.appendChild(th);
-				    var th = document.createElement("th");
-				    th.appendChild(document.createTextNode( "Município" ));
-				    tr.appendChild(th);
-				    var th = document.createElement("th");
-				    th.appendChild(document.createTextNode( "Estado" ));
-				    tr.appendChild(th);
-				    var th = document.createElement("th");
-				    th.appendChild(document.createTextNode( "População" ));
-				    tr.appendChild(th);
-
-
-				    table2.appendChild(tr);
-				    wrap.appendChild(table2);
-
-				    // monta a tabela html (linha a linha)
-				    while( i<(sz-2) ){
-
-				    	var tr = document.createElement("tr");
-				    	
-				    	var td = document.createElement("td");
-				    	td.appendChild(document.createTextNode( res[i] ));
-				    	tr.appendChild(td);
-				    	i++;
-
-				    	var td = document.createElement("td");
-				    	td.appendChild(document.createTextNode( res[i] ));
-				    	tr.appendChild(td);
-				    	i++;
-
-						var td = document.createElement("td");
-				    	td.appendChild(document.createTextNode( res[i] ));
-				    	tr.appendChild(td);
-				    	i++;
-
-				    	var td = document.createElement("td");
-				    	td.appendChild(document.createTextNode( res[i] ));
-				    	tr.appendChild(td);
-				    	i++;
-
-				    	tbody.appendChild(tr);
-				    }
-
-				    table.appendChild(tbody);
-				    div.appendChild(table);
-				    center.appendChild(div);
-				    center.appendChild(br);
-
-
-
-				    document.body.appendChild(center);
-
-				    // total de resultados
-				    div.appendChild(br);
-				    var p = document.createElement("p");
-				    //p.setAttribute('id','para');
-				    p.appendChild( document.createTextNode("Total de resultados: " + qtd) );
-				    div.appendChild(p);
-
-				    // Data dos dados
-				    var p = document.createElement("p");
-				    p.appendChild( document.createTextNode("Dados de 2014") );
-				    div.appendChild(p);
-				}else{
-					var div = document.getElementById("div");
-					var p = document.createElement("p");
-					p.appendChild( document.createTextNode("Nenhum resultado encontrado") );
-					div.appendChild(p);
-				}
-
-			}
-
-//*********************************************************************************************
 			function fncMunicipios(response){
 
 				// verifica se tabela ja exista e limpa
@@ -840,15 +723,22 @@
 				    // conteudo do cabeçalho
 				    var td = document.createElement("td");
 				    td.appendChild(document.createTextNode( "Código" ));
+				    td.setAttribute( 'style', 'width:100px' );
 				    tr.appendChild(td);
+
 					var td = document.createElement("td");
 				    td.appendChild(document.createTextNode( "Município" ));
+				    td.setAttribute( 'style', 'width:280px' );
 				    tr.appendChild(td);
+
 				    var td = document.createElement("td");
 				    td.appendChild(document.createTextNode( "Estado" ));
+				    td.setAttribute( 'style', 'width:90px' );
 				    tr.appendChild(td);
+
 				    var td = document.createElement("td");
 				    td.appendChild(document.createTextNode( "População" ));
+				    td.setAttribute( 'style', 'width:100px' );
 				    tr.appendChild(td);
 
 				    // adiciona o cabeçalho na tabela head
@@ -860,27 +750,30 @@
 				    // conteudo da tabela (2a table)
 				    while( i<(sz-2) ){
 
-				    	//cria cada linha de conteudo da tabela
-
+				    	//cria cada linha de conteudo da tabela4
 				    	var tr = document.createElement("tr");
 				    	
 				    	var td = document.createElement("td");
 				    	td.appendChild(document.createTextNode( res[i] ));
+				    	td.setAttribute( 'style', 'width:100px' );
 				    	tr.appendChild(td);
 				    	i++;
 
 				    	var td = document.createElement("td");
 				    	td.appendChild(document.createTextNode( res[i] ));
+				    	td.setAttribute( 'style', 'width:280px' );
 				    	tr.appendChild(td);
 				    	i++;
 
 						var td = document.createElement("td");
 				    	td.appendChild(document.createTextNode( res[i] ));
+				    	td.setAttribute( 'style', 'width:90px' );
 				    	tr.appendChild(td);
 				    	i++;
 
 				    	var td = document.createElement("td");
 				    	td.appendChild(document.createTextNode( res[i] ));
+				    	td.setAttribute( 'style', 'width:100px' );
 				    	tr.appendChild(td);
 				    	i++;
 
@@ -897,7 +790,7 @@
 				    // total de resultados
 				    wrap.appendChild(br);
 				    var p = document.createElement("p");
-				    //p.setAttribute('id','para');
+				    p.setAttribute('id','results');
 				    p.appendChild( document.createTextNode("Total de resultados: " + qtd) );
 				    wrap.appendChild(p);
 
@@ -905,10 +798,12 @@
 				    var p = document.createElement("p");
 				    p.appendChild( document.createTextNode("Dados de 2014") );
 				    wrap.appendChild(p);
+				    wrap.appendChild(br); 
 				    wrap.appendChild(br);
 
 				    // centraliza
 				    center.appendChild( wrap );
+				    center.appendChild(br);
 
 				    // adiciona na div_table
 				    div.appendChild(center);

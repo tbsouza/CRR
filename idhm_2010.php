@@ -68,7 +68,7 @@
   			}
 
   			// cria um novo mapa
-  			var map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 5);
+  			var map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 4);
 
   			// Seleciona o basemap
   			L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -197,7 +197,7 @@
 
 
 			// Posição do centro
-			var lat = -15, lon = -55, zoom = 5;
+			var lat = -15, lon = -55, zoom = 4;
 
 			// variáveis do marcador e popup
 			var circle=null, popup=null;
@@ -627,6 +627,8 @@
 <!-- *********************************************************************************************** -->
 		<div class="divSearch" >
 
+			<p>Pesquisar por Município</p>
+
 			<input id="inputSearch" maxlength="54" type="text" name="text" size="42" placeholder="Por exempo: São Paulo, MG, 2109056">
 			<button class="button" id="buttonSearch" type="button" onclick="btnSearch()">Pesquisar</button>
 			<button class="button" id="buttonAll" type="button" onclick="connect()">Todos os resultados</button>
@@ -634,6 +636,8 @@
 		</div>
 
 		<br/><br/>
+
+		<div id="div_table"></div>
 
 		<!-- Lista/Tabela de Resultados -->
 		<script type="text/javascript">
@@ -662,107 +666,157 @@
 			  	}
 			}
 
+
 			function fncMunicipios(response){
 
 				// verifica se tabela ja exista e limpa
-				var d = document.getElementById("div");
+				var d = document.getElementById("wrap");
 				var cont = document.body.contains(d);
 
+				var div = document.getElementById("div_table");
+
 				if( cont == false ){
-					var div = document.createElement("div");
-					div.setAttribute('id','div');
+					// div inner
+					var wrap = document.createElement("div");
+			    	wrap.setAttribute('class', 'wrap');
+			    	wrap.setAttribute('id', 'wrap');
 				}else{
-					var div = document.getElementById("div");
-					div.innerHTML = "" ;
+					var wrap = document.getElementById("wrap");
 				}
 				
+				wrap.innerHTML = "";
+				div.innerHTML = "";
+
 				var res = response.split("#");
 			    var sz = res.length;
 			    var i=0;
 			    var columns = 4;
 			    var qtd = (sz-1)/columns;
 
+			    // elemento para pular linha
+				var br = document.createElement("p");
+
+				// cria elementro center para centralizar a div
+				var center = document.createElement("center");
+
 			    if( qtd>0 ){
-				    // cria elementos html
-				    var table = document.createElement("table");
-				    var tbody = document.createElement("tbody");
-				    var center = document.createElement("center");
-				    var br = document.createElement("p");
 
-				    // atribui id aos elementos criados
-				    center.setAttribute('id', 'center');
-				    table.setAttribute('id','table');
-				    
-				    // Tópicos da tabela
+			    	// div de fora
+			    	var wrap = document.createElement("div");
+			    	wrap.setAttribute('class', 'wrap');
+
+			    	// div de dentro
+			    	var inner = document.createElement("div");
+			    	inner.setAttribute('class', 'inner');
+
+			    	// table do cabeçalho
+			    	var head = document.createElement("table");
+			    	head.setAttribute('class', 'head');
+
+			    	// table do conteudo
+			    	var table = document.createElement("table");
+			    	table.setAttribute('class', 'inner_table');
+
+				    // linha do cabeçalho
 				    var tr = document.createElement("tr");
-				    tr.setAttribute('id', 'tr');
 
-				    var th = document.createElement("th");
-				    th.appendChild(document.createTextNode( "Código IBGE" ));
-				    tr.appendChild(th);
-				    var th = document.createElement("th");
-				    th.appendChild(document.createTextNode( "Município" ));
-				    tr.appendChild(th);
-				    var th = document.createElement("th");
-				    th.appendChild(document.createTextNode( "Estado" ));
-				    tr.appendChild(th);
-				    var th = document.createElement("th");
-				    th.appendChild(document.createTextNode( "IDH" ));
-				    tr.appendChild(th);
+				    // conteudo do cabeçalho
+				    var td = document.createElement("td");
+				    td.appendChild(document.createTextNode( "Código" ));
+				    td.setAttribute( 'style', 'width:100px' );
+				    tr.appendChild(td);
 
-				    tbody.appendChild(tr);
+					var td = document.createElement("td");
+				    td.appendChild(document.createTextNode( "Município" ));
+				    td.setAttribute( 'style', 'width:280px' );
+				    tr.appendChild(td);
 
-				    // monta a tabela html
+				    var td = document.createElement("td");
+				    td.appendChild(document.createTextNode( "Estado" ));
+				    td.setAttribute( 'style', 'width:90px' );
+				    tr.appendChild(td);
+
+				    var td = document.createElement("td");
+				    td.appendChild(document.createTextNode( "IDHM" ));
+				    td.setAttribute( 'style', 'width:100px' );
+				    tr.appendChild(td);
+
+				    // adiciona o cabeçalho na tabela head
+				    head.appendChild( tr );
+
+				    // adiciona a tabela head na div principal
+				    wrap.appendChild( head );
+
+				    // conteudo da tabela (2a table)
 				    while( i<(sz-2) ){
 
+				    	//cria cada linha de conteudo da tabela4
 				    	var tr = document.createElement("tr");
 				    	
 				    	var td = document.createElement("td");
 				    	td.appendChild(document.createTextNode( res[i] ));
+				    	td.setAttribute( 'style', 'width:100px' );
 				    	tr.appendChild(td);
 				    	i++;
 
 				    	var td = document.createElement("td");
 				    	td.appendChild(document.createTextNode( res[i] ));
+				    	td.setAttribute( 'style', 'width:280px' );
 				    	tr.appendChild(td);
 				    	i++;
 
 						var td = document.createElement("td");
 				    	td.appendChild(document.createTextNode( res[i] ));
+				    	td.setAttribute( 'style', 'width:90px' );
 				    	tr.appendChild(td);
 				    	i++;
 
 				    	var td = document.createElement("td");
 				    	td.appendChild(document.createTextNode( res[i] ));
+				    	td.setAttribute( 'style', 'width:100px' );
 				    	tr.appendChild(td);
 				    	i++;
 
-				    	tbody.appendChild(tr);
+				    	// adiciona a linha na tabela
+				    	table.appendChild(tr);
 				    }
 
-				    table.appendChild(tbody);
-				    div.appendChild(table);
-				    center.appendChild(div);
-				    center.appendChild(br);
+				    // adiciona atable de conteudo na dive interna
+				    inner.appendChild( table );
 
-				    document.body.appendChild(center);
+				    // adiociona na div principal
+				    wrap.appendChild( inner );
 
 				    // total de resultados
-				    div.appendChild(br);
+				    wrap.appendChild(br);
 				    var p = document.createElement("p");
-				    //p.setAttribute('id','para');
+				    p.setAttribute('id','results');
 				    p.appendChild( document.createTextNode("Total de resultados: " + qtd) );
-				    div.appendChild(p);
+				    wrap.appendChild(p);
 
 				    // Data dos dados
 				    var p = document.createElement("p");
 				    p.appendChild( document.createTextNode("Dados de 2010") );
-				    div.appendChild(p);
-				}else{
-					var div = document.getElementById("div");
+				    wrap.appendChild(p);
+				    wrap.appendChild(br); 
+				    wrap.appendChild(br);
+
+				    // centraliza
+				    center.appendChild( wrap );
+				    center.appendChild(br);
+
+				    // adiciona na div_table
+				    div.appendChild(center);
+			    }else{
+			    	// se nenhum resultado foi retornado
+					
 					var p = document.createElement("p");
-					p.appendChild( document.createTextNode("Nenhum resultado encontrado") );
-					div.appendChild(p);
+
+					p.appendChild( document.createTextNode("Nenhum resultado encontrado!") );
+
+					center.appendChild( p );
+
+					div.appendChild( center );
 				}
 			}
 		
