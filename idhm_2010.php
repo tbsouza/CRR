@@ -30,6 +30,11 @@
 		<!-- CSS EasyButton -->
 		<link rel="stylesheet" href="easybutton.css" type="text/css" >
 
+		<!-- JavaScript Toastr -->
+		<script src="toastr.js" type="text/javascript"></script>
+		<!-- CSS Toatr -->
+		<link rel="stylesheet" href="toastr.css" type="text/css" >
+
 		<!-- JavaScript FullScreen -->
 		<script src="leaflet.fullscreen.min.js" type="text/javascript"></script>
 		<!-- CSS FullScreen -->
@@ -39,6 +44,7 @@
 
 	<body id="body" onload="getGJSON()">
 
+		<!-- Titulo da pagina -->
 		<h2> IDHM - 2010</h2>
 
 		<!-- Campo que sera adicionado o mapa -->
@@ -62,10 +68,36 @@
 
 					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
-					
+					// salva o arquivo GEOJson aberto
 					gjson = json;
 				});
+
+				// Notificação para usuário aguardar
+				toastr.info("Isso pode demorar um pouco.", "Aguarde o mapa ser carregado!" );
   			}
+
+  			// configura o toastr (toast messages)
+  			configureToast();
+
+			function configureToast(){
+	  			toastr.options = {
+					"closeButton": true,
+					"debug": false,
+					"positionClass": "toast-top-right",
+					"onclick": null,
+					"showDuration": "1000",
+					"hideDuration": "2500",
+					"timeOut": "5000",
+					"extendedTimeOut": "1000",
+					"showEasing": "linear",
+					"hideEasing": "linear",
+					"showMethod": "fadeIn",
+					"hideMethod": "fadeOut",
+					"newestOnTop": true,
+	 				"progressBar": false,
+	 				"escapeHtml": true
+				}
+			}
 
   			// cria um novo mapa
   			var map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 4);
@@ -112,8 +144,10 @@
 			        fillOpacity: 1
 			    });
 
+			    // Coloca a camada na frente das outras (por cima)
 			    layer.bringToFront();
 
+			    // Coloca o circulo na frente da camada
 			    if( circle != null ){ circle.bringToFront(); }
 
 			    info.update(layer.feature.properties);
@@ -122,18 +156,18 @@
 			// Limpa a formatação ao retirar o mouse
 			function resetHighlight(e) {
 			    geojsonObject.resetStyle(e.target);
-
 			    info.update();
 			}
 
 			// Da zoom para feição ao clicar
 			function zoomToFeature(e) {
+				// Ajusta o zoom para o tamanho do município
 			    map.fitBounds(e.target.getBounds());
 
-			    if( circle!=null ){
-			    	map.removeLayer(circle);
-			    }
+			    // Se possuir algum outro circulo o remove
+			    if( circle!=null ){ map.removeLayer(circle); }
 
+			    // Desenha um circulo na posição do click
 			    circle = L.circle(e.latlng, {
 				    color: 'red',
 				    fillColor: '#f03',
@@ -163,17 +197,19 @@
 			// method that we will use to update the control based on feature properties passed
 			info.update = function (props) {
 
+				// Atualiza a div com o dado do município que o mouse esta sobre
 			    this._div.innerHTML = '<h4>Índice de Desenvolvimento Humano</h4>' + (props  ?
 			        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.idhm_2010) + '"></i>' + 
 			        	props.nome + ', ' +  props.uf + '</b><br />' + props.idhm_2010 + '</sup>'  : ' ');
 			};
 
+			// adiciona as informações feitas acima ao mapa
 			info.addTo(map);
-
 
 			// Adiciona legenda
 			var legend = L.control({position: 'bottomright'});
 
+			// Cria a legenda
 			legend.onAdd = function (map) {
 
 			    var div = L.DomUtil.create('div', 'legend'),
@@ -193,8 +229,8 @@
 			    return div;
 			};
 
+			// adiciona a legenda (criada acima) ao mapa
 			legend.addTo(map);
-
 
 			// Posição do centro
 			var lat = -15, lon = -55, zoom = 4;
@@ -228,12 +264,13 @@
 			// Ao encontrar localização
 			function onLocationFound(e) {
 
+				// Cria popup indicando a localização do usuário
 				popup = L.popup().setLatLng(e.latlng).setContent("Você está aqui!").openOn(map);
 
-				if( circle!=null ){
-			    	map.removeLayer(circle);
-			    }
+				// Verifica se já existe algum circulo desenhado e o remove
+				if( circle!=null ){ map.removeLayer(circle); }
 
+				// Coloca o circulo desenhado por cima
 				circle = L.circle(e.latlng, {
 				    color: 'red',
 				    fillColor: '#f03',
@@ -241,32 +278,54 @@
 				    radius: 650
 				}).addTo(map);
 
+				// Notificação de sucesso
 				circle.bringToFront();
+
+				// Notificação de sucesso
+				toastr.success("Localização encontrada");
 			}
 
+			// Quando encontrar a localilação chama a função onLocationFound
 			map.on('locationfound', onLocationFound);
 
 			// Não encontrar localização
 			function onLocationError(e) {
+
+				// Evita memsagem de erro se estourar o timeout da localização
+				if( e.message != "Geolocation error: Position acquisition timed out." ){
+					toastr.error("Não foi possível encontrar sua posição");
+				}
+
+				// Exibe a msg de erro no console (debug)
 			    console.log(e.message);
 			}
 
+			// Quando houver um erro na localização chama a função onLocationError
 			map.on('locationerror', onLocationError);
-
 
 			// Função para limpar os marcadores
 			function removeMarkers(){
 				
+				// Se tem algum circulo ou popup mostra notificação
+				if( circle != null || popup != null ){
+					toastr.success("Campos limpos");
+				}
+
+				// Se tem algum circulo desenhado o eleimina
 				if( circle != null ) {
 				    map.removeLayer(circle);
 				    circle=null;
 				}
 
+				// Se tem algum popup desenhado o eleimina
 				if( popup != null ){
  					map.removeLayer(popup);
 				    popup=null;
 				}
 			}
+
+			// Funções para aplicar os estilos dos filtros
+			// Uma função para cada intervalo da legenda
 
 			function style0(feature) {
 
@@ -286,7 +345,6 @@
 				}  
 			}
 
-			// Funcao para aplicar os estilos dos filtros
 			function style1(feature) {
 
 				var idh = feature.properties.idhm_2010;
@@ -425,6 +483,8 @@
 				};
 			}
 
+			// Funções verificar qual botão foi clicado e adiciona a camada no mapa
+
 			function check0Clicked(){
 				removeFilter();
 
@@ -433,6 +493,7 @@
 
 				geoObject.addTo(map);
 
+				// Desmarca os outros radio buttons
 				$('#check1').prop("checked", false);
 				$('#check2').prop("checked", false);
 				$('#check3').prop("checked", false);
@@ -564,6 +625,7 @@
 			document.getElementById("check6").addEventListener("click", check6Clicked, true);
 			document.getElementById("check7").addEventListener("click", check7Clicked, true);
 
+			// Remove todas as camadas de filtros
 			function removeFilter(){
 				if( geoObject != null ){
 					map.removeLayer(geoObject);
@@ -587,8 +649,9 @@
 					// Remove a camada principal do mapa
 					map.removeLayer(geojsonObject);
 
-					// Verifica as camadas dos filtros
-					checkClicked();
+					// button 0 clicado por padrão
+					$('#check0').prop("checked", true);
+					check0Clicked();
 
 				}else{
 					// Desabilita checkboxes
@@ -619,12 +682,14 @@
 				}
 			}
 
+			// Adiciona o eventro de click
 			document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
 
   		</script>
 
 
 <!-- *********************************************************************************************** -->
+		<!-- Campo pesquisar -->
 		<div class="divSearch" >
 
 			<p>Pesquisar por Município</p>
@@ -654,6 +719,7 @@
 
 					flag = 0;
 
+					// Ajax para chamar php de forma assincrona
 					$.ajax({
 			      		url:'idhm_2010_bd.php',
 			      		complete: function (response) {
@@ -666,7 +732,8 @@
 			  	}
 			}
 
-
+			// Função chamada pelo retorno do php
+			// Constroi a tabela com os resultados
 			function fncMunicipios(response){
 
 				// verifica se tabela ja exista e limpa
@@ -820,8 +887,8 @@
 				}
 			}
 		
-			//Campo pesquisar
-			function btnSearch(){ // funcao pesquisar
+			//Funçao pesquisar
+			function btnSearch(){ 
 
 				var inputSearch = document.getElementById("inputSearch");
 
@@ -860,6 +927,7 @@
 				content = inputSearch.value;
 			}
 
+// ***********************************************************************************************
 			// Script para pesquisar com enter
 			$(document).ready(function(){
 				$('#inputSearch').keypress(function(e){
@@ -867,6 +935,7 @@
 					    $('#buttonSearch').click();
 				});
 			});
+// ***********************************************************************************************
 
 		</script>
 

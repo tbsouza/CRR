@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 	<head>
-		<title> CRR </title>
-<meta charset="UTF-8"> <!-- Formato de codificação dos caracteres -->
+
+		<meta charset="UTF-8"> <!-- Formato de codificação dos caracteres -->
 		<meta http-equiv="Content-Type" content="text/html/map; charset=utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -39,10 +39,12 @@
 		<script src="leaflet.fullscreen.min.js" type="text/javascript"></script>
 		<!-- CSS FullScreen -->
 		<link rel="stylesheet" href="leaflet.fullscreen.css" type="text/css" >
+
 	</head>
 
 	<body id="body" onload="getGJSON()">
 
+		<!-- Titulo da pagina -->
 		<h2> População do Brasil - 2014 </h2>
 
 		<!-- Campo que sera adicionado o mapa -->
@@ -54,10 +56,12 @@
   			var geojsonObject, geoObject;
   			var gjson;
 
+  			// Função para abrir o geojson via ajax
   			function getGJSON(){
 
   				// arquivo GEOJson a ser aberto
   				var url = "informacoes_geojson.geojson";
+  				//var url = "pop_2014_2015.geojson";
 
 	  			// Abre o GeoJson com os dados
 	  			$.getJSON(url, function(json) {
@@ -67,35 +71,37 @@
 					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
 					
+					// salva o arquivo GEOJson aberto
 					gjson = json;
 				});
-  			}
 
+	  			// Notificação para usuário aguardar
+				toastr.info("Isso pode demorar um pouco.", "Aguarde o mapa ser carregado!" );
+  			}
 
   			// configura o toastr (toast messages)
   			configureToast();
 
 			function configureToast(){
 	  			toastr.options = {
-					"closeButton": false,
+					"closeButton": true,
 					"debug": false,
 					"positionClass": "toast-top-right",
 					"onclick": null,
 					"showDuration": "1000",
 					"hideDuration": "2500",
-					"timeOut": "3000",
+					"timeOut": "5000",
 					"extendedTimeOut": "1000",
 					"showEasing": "linear",
 					"hideEasing": "linear",
 					"showMethod": "fadeIn",
 					"hideMethod": "fadeOut",
 					"newestOnTop": true,
-	 				"progressBar": true,
+	 				"progressBar": false,
 	 				"escapeHtml": true
 				}
 			}
 			
-
   			// cria um novo mapa
   			var map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 4);
 
@@ -104,7 +110,6 @@
 			    attribution: '&copy; <a target="_blank" href="http://www.inatel.br/crr/">CRR</a> Inatel',
 			    minZoom: 4, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true
 			}).addTo(map);
-
 
   			// Funcao para diferenciar o estilo de cada feicao (padrão)
   			function getColor(p) {
@@ -141,8 +146,10 @@
 			        fillOpacity: 1
 			    });
 
+			    // Coloca a camada na frente das outras (por cima)
 			    layer.bringToFront();
 
+			    // Coloca o circulo na frente da camada
 			    if( circle != null ){ circle.bringToFront(); }
 
 			    info.update(layer.feature.properties);
@@ -151,18 +158,18 @@
 			// Limpa a formatação ao retirar o mouse
 			function resetHighlight(e) {
 			    geojsonObject.resetStyle(e.target);
-
 			    info.update();
 			}
 
 			// Da zoom para feição ao clicar
 			function zoomToFeature(e) {
+				// Ajusta o zoom para o tamanho do município
 			    map.fitBounds(e.target.getBounds());
 
-			    if( circle!=null ){
-			    	map.removeLayer(circle);
-			    }
+			    // Se possuir algum outro circulo o remove
+			    if( circle!=null ){ map.removeLayer(circle); }
 
+			    // Desenha um circulo na posição do click
 			    circle = L.circle(e.latlng, {
 				    color: 'red',
 				    fillColor: '#f03',
@@ -192,17 +199,19 @@
 			// method that we will use to update the control based on feature properties passed
 			info.update = function (props) {
 
+				// Atualiza a div com o dado do município que o mouse esta sobre
 			    this._div.innerHTML = '<h4>População por Município &nbsp;&nbsp;&nbsp;</h4>' + (props  ?
 			        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.pop_2014) + '"></i>' + 
 			        	props.nome + ', ' +  props.uf + '</b><br />' + props.pop_2014 + ' habitantes</sup>'  : ' ');
 			};
 
+			// adiciona as informações feitas acima ao mapa
 			info.addTo(map);
-
 
 			// Adiciona legenda
 			var legend = L.control({position: 'bottomright'});
 
+			// Cria a legenda
 			legend.onAdd = function (map) {
 
 			    var div = L.DomUtil.create('div', 'legend'),
@@ -222,8 +231,8 @@
 			    return div;
 			};
 
+			// adiciona a legenda (criada acima) ao mapa
 			legend.addTo(map);
-
 
 			// Posição do centro
 			var lat = -15, lon = -55, zoom = 4;
@@ -257,12 +266,13 @@
 			// Ao encontrar localização
 			function onLocationFound(e) {
 
+				// Cria popup indicando a localização do usuário
 				popup = L.popup().setLatLng(e.latlng).setContent("Você está aqui!").openOn(map);
 
-				if( circle!=null ){
-			    	map.removeLayer(circle);
-			    }
+				// Verifica se já existe algum circulo desenhado e o remove
+				if( circle!=null ){ map.removeLayer(circle); }
 
+			    // Desenha um circulo na localização do usuario
 				circle = L.circle(e.latlng, {
 				    color: 'red',
 				    fillColor: '#f03',
@@ -270,47 +280,58 @@
 				    radius: 650
 				}).addTo(map);
 
+				// Coloca o circulo desenhado por cima
 				circle.bringToFront();
 
+				// Notificação de sucesso
 				toastr.success("Localização encontrada");
 			}
 
+			// Quando encontrar a localilação chama a função onLocationFound
 			map.on('locationfound', onLocationFound);
 
 			// Não encontrar localização
 			function onLocationError(e) {
 
+				// Evita memsagem de erro se estourar o timeout da localização
 				if( e.message != "Geolocation error: Position acquisition timed out." ){
 					toastr.error("Não foi possível encontrar sua posição");
 				}
 
+				// Exibe a msg de erro no console (debug)
 			    console.log(e.message);
 			}
 
+			// Quando houver um erro na localização chama a função onLocationError
 			map.on('locationerror', onLocationError);
-
 
 			// Função para limpar os marcadores
 			function removeMarkers(){
 				
+				// Se tem algum circulo ou popup mostra notificação
 				if( circle != null || popup != null ){
 					toastr.success("Campos limpos");
 				}
 
+				// Se tem algum circulo desenhado o eleimina
 				if( circle != null ) {
 				    map.removeLayer(circle);
 				    circle=null;
 				}
 
+				// Se tem algum popup desenhado o eleimina
 				if( popup != null ){
  					map.removeLayer(popup);
 				    popup=null;
 				}
 			}
 
-			// Funcao para aplicar os estilos dos filtros
+			// Funções para aplicar os estilos dos filtros
+			// Uma função para cada intervalo da legenda
+
 			function style0(feature) {
 
+				// Propriedade do GEOJson aberto (população 2014)
 				var pop = feature.properties.pop_2014;
 
 				if( pop < 10000 ){
@@ -447,7 +468,8 @@
 				};
 			}
 
-			// Verifica qual botão foi clicado e adiciona a camada no mapa
+			// Funções verificar qual botão foi clicado e adiciona a camada no mapa
+
 			function check0Clicked(){
 				removeFilter();
 
@@ -456,6 +478,7 @@
 
 				geoObject.addTo(map);
 
+				// Desmarca os outros radio buttons
 				$('#check1').prop("checked", false);
 				$('#check2').prop("checked", false);
 				$('#check3').prop("checked", false);
@@ -563,9 +586,11 @@
 			document.getElementById("check5").addEventListener("click", check5Clicked, true);
 			document.getElementById("check6").addEventListener("click", check6Clicked, true);
 
+			// Remove todas as camadas de filtros
 			function removeFilter(){
 				if( geoObject != null ){
 					map.removeLayer(geoObject);
+					geoObject = null;
 				}
 			}
 
@@ -585,8 +610,9 @@
 					// Remove a camada principal do mapa
 					map.removeLayer(geojsonObject);
 
-					// Verifica as camadas dos filtros
-					//checkClicked();
+					// button 0 clicado por padrão
+					$('#check0').prop("checked", true);
+					check0Clicked();
 
 				}else{
 					// Desabilita checkboxes
@@ -615,12 +641,14 @@
 				}
 			}
 
+			// Adiciona o eventro de click
 			document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
 
   		</script>
 
-
-		<div class="divSearch" > <!-- Campo pesquisar -->
+ <!-- *********************************************************************************************** -->
+ 		<!-- Campo pesquisar -->
+		<div class="divSearch" > 
 
 			<p>Alterar data das informações</p>
 
@@ -638,7 +666,9 @@
 		</div>
 
 		<div id="div_table"></div>
+<!-- *********************************************************************************************** -->
 
+		<!-- Lista/Tabela de Resultados -->
 		<script type="text/javascript">
 
 			// variaveis globais
@@ -654,6 +684,7 @@
 
 					flag = 0;
 
+					// Ajax para chamar php de forma assincrona
 					$.ajax({
 			      		url:'municipios_2014_bd.php',
 			      		complete: function (response) {
@@ -666,15 +697,16 @@
 			  	}
 			}
 
-
+			// Função chamada pelo retorno do php
+			// Constroi a tabela com os resultados
 			function fncMunicipios(response){
 
-				// verifica se tabela ja exista e limpa
 				var d = document.getElementById("wrap");
 				var cont = document.body.contains(d);
 
 				var div = document.getElementById("div_table");
 
+				// verifica se tabela ja exista e limpa
 				if( cont == false ){
 					// div inner
 					var wrap = document.createElement("div");
@@ -819,20 +851,20 @@
 					div.appendChild( center );
 				}
 			}
-		</script>
-
-		<script type="text/javascript"> // Script para pesquisar com enter
+		
+// ***********************************************************************************************
+		 // Script para pesquisar ao pressionar enter
 			$(document).ready(function(){
 				$('#inputSearch').keypress(function(e){
 					if(e.keyCode==13)
 					    $('#buttonSearch').click();
 				});
 			});
-		</script>
 
-		<script type="text/javascript">
+// ***********************************************************************************************
 
-			function btnSearch(){ // funcao pesquisar
+			//Funçao pesquisar
+			function btnSearch(){
 
 				var inputSearch = document.getElementById("inputSearch");
 
@@ -844,7 +876,6 @@
 						// atualiza o placeholder
 						var msg = "Por exempo: São Paulo, MG, 2109056";
 						inputSearch.placeholder = msg;
-
 
 						// elimina espaços antes e depois, se houver
 						var value = (inputSearch.value).trim();

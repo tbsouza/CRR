@@ -44,6 +44,7 @@
 
 	<body id="body" onload="getGJSON()">
 
+		<!-- Titulo da pagina -->
 		<h2> População do Brasil - 2015</h2>
 
 		<!-- Campo que sera adicionado o mapa -->
@@ -55,10 +56,12 @@
   			var geojsonObject, geoObject;
   			var gjson;
 
+  			// Função para abrir o geojson via ajax
   			function getGJSON(){
 
   				// arquivo GEOJson a ser aberto
   				var url = "informacoes_geojson.geojson";
+  				//var url = "pop_2014_2015.geojson";
 
 	  			// Abre o GeoJson com os dados
 	  			$.getJSON(url, function(json) {
@@ -68,34 +71,36 @@
 					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
 					
+					// salva o arquivo GEOJson aberto
 					gjson = json;
 				});
-  			}
 
+	  			// Notificação para usuário aguardar
+				toastr.info("Isso pode demorar um pouco.", "Aguarde o mapa ser carregado!" );
+  			}
 
   			// configura o toastr (toast messages)
   			configureToast();
 
-			function configureToast(){
+			function configureToast(){ // opções do toastr
 	  			toastr.options = {
-					"closeButton": false,
+					"closeButton": true,
 					"debug": false,
 					"positionClass": "toast-top-right",
 					"onclick": null,
 					"showDuration": "1000",
 					"hideDuration": "2500",
-					"timeOut": "3000",
+					"timeOut": "5000",
 					"extendedTimeOut": "1000",
 					"showEasing": "linear",
 					"hideEasing": "linear",
 					"showMethod": "fadeIn",
 					"hideMethod": "fadeOut",
 					"newestOnTop": true,
-	 				"progressBar": true,
+	 				"progressBar": false,
 	 				"escapeHtml": true
 				}
 			}
-			
 
   			// cria um novo mapa
   			var map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 4);
@@ -105,13 +110,6 @@
 			    attribution: '&copy; <a target="_blank" href="http://www.inatel.br/crr/">CRR</a> Inatel',
 			    minZoom: 4, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true
 			}).addTo(map);
-
-
-  			// Mensagem de notificação
-			map.onRemove = function(){
-				toastr.info("Camada removida");
-			}
-
 
   			// Funcao para diferenciar o estilo de cada feicao (padrão)
   			function getColor(p) {
@@ -148,8 +146,10 @@
 			        fillOpacity: 1
 			    });
 
+			    // Coloca a camada na frente das outras (por cima)
 			    layer.bringToFront();
 
+			    // Coloca o circulo na frente da camada
 			    if( circle != null ){ circle.bringToFront(); }
 
 			    info.update(layer.feature.properties);
@@ -158,18 +158,18 @@
 			// Limpa a formatação ao retirar o mouse
 			function resetHighlight(e) {
 			    geojsonObject.resetStyle(e.target);
-
 			    info.update();
 			}
 
 			// Da zoom para feição ao clicar
 			function zoomToFeature(e) {
+				// Ajusta o zoom para o tamanho do município
 			    map.fitBounds(e.target.getBounds());
 
-			    if( circle!=null ){
-			    	map.removeLayer(circle);
-			    }
+			    // Se possuir algum outro circulo o remove
+			    if( circle!=null ){ map.removeLayer(circle); }
 
+			    // Desenha um circulo na posição do click
 			    circle = L.circle(e.latlng, {
 				    color: 'red',
 				    fillColor: '#f03',
@@ -199,17 +199,19 @@
 			// method that we will use to update the control based on feature properties passed
 			info.update = function (props) {
 
+				// Atualiza a div com o dado do município que o mouse esta sobre
 			    this._div.innerHTML = '<h4>População por Município &nbsp;&nbsp;&nbsp;</h4>' + (props  ?
 			        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.pop_2015) + '"></i>' + 
 			        	props.nome + ', ' +  props.uf + '</b><br />' + props.pop_2015 + ' habitantes</sup>'  : ' ');
 			};
 
+			// adiciona as informações feitas acima ao mapa
 			info.addTo(map);
-
 
 			// Adiciona legenda
 			var legend = L.control({position: 'bottomright'});
 
+			// Cria a legenda
 			legend.onAdd = function (map) {
 
 			    var div = L.DomUtil.create('div', 'legend'),
@@ -220,6 +222,8 @@
 
 			    // loop through our population intervals and generate a label with a colored square for each interval
 			    for (var i = 0; i < grades.length; i++) {
+
+			    	// Cria a legenda com as cores	
 			        div.innerHTML +=
 			            '<i class="legenda" style="background:' + getColor(grades[i] + 1) + '"/></i><input id="check' + i + 
 			            '" type="radio" disabled/> ' +
@@ -229,8 +233,8 @@
 			    return div;
 			};
 
+			// adiciona a legenda (criada acima) ao mapa
 			legend.addTo(map);
-
 
 			// Posição do centro
 			var lat = -15, lon = -55, zoom = 4;
@@ -264,12 +268,13 @@
 			// Ao encontrar localização
 			function onLocationFound(e) {
 
+				// Cria popup indicando a localização do usuário
 				popup = L.popup().setLatLng(e.latlng).setContent("Você está aqui!").openOn(map);
 
-				if( circle!=null ){
-			    	map.removeLayer(circle);
-			    }
+				// Verifica se já existe algum circulo desenhado e o remove
+				if( circle!=null ){ map.removeLayer(circle); }
 
+			    // Desenha um circulo na localização do usuario
 				circle = L.circle(e.latlng, {
 				    color: 'red',
 				    fillColor: '#f03',
@@ -277,46 +282,55 @@
 				    radius: 650
 				}).addTo(map);
 
+				// Coloca o circulo desenhado por cima
 				circle.bringToFront();
 
+				// Notificação de sucesso
 				toastr.success("Localização encontrada");
 			}
 
+			// Quando encontrar a localilação chama a função onLocationFound
 			map.on('locationfound', onLocationFound);
 
 			// Não encontrar localização
 			function onLocationError(e) {
 
+				// Evita memsagem de erro se estourar o timeout da localização
 				if( e.message != "Geolocation error: Position acquisition timed out." ){
 					toastr.error("Não foi possível encontrar sua posição");
 				}
 
+				// Exibe a msg de erro no console (debug)
 			    console.log(e.message);
 			}
 
+			// Quando houver um erro na localização chama a função onLocationError
 			map.on('locationerror', onLocationError);
-
 
 			// Função para limpar os marcadores
 			function removeMarkers(){
 				
+				// Se tem algum circulo ou popup mostra notificação
 				if( circle != null || popup != null ){
 					toastr.success("Campos limpos");
 				}
 
+				// Se tem algum circulo desenhado o eleimina
 				if( circle != null ) {
 				    map.removeLayer(circle);
 				    circle=null;
 				}
 
+				// Se tem algum popup desenhado o eleimina
 				if( popup != null ){
  					map.removeLayer(popup);
 				    popup=null;
 				}
 			}
 
+			// Funções para aplicar os estilos dos filtros
+			// Uma função para cada intervalo da legenda
 
-			// Funcao para aplicar os estilos dos filtros
 			function style0(feature) {
 
 				var pop = feature.properties.pop_2015;
@@ -455,6 +469,8 @@
 				};
 			}
 
+			// Funções verificar qual botão foi clicado e adiciona a camada no mapa
+
 			function check0Clicked(){
 				removeFilter();
 
@@ -570,6 +586,7 @@
 			document.getElementById("check5").addEventListener("click", check5Clicked, true);
 			document.getElementById("check6").addEventListener("click", check6Clicked, true);
 
+			// Remove todas as camadas de filtros
 			function removeFilter(){
 				if( geoObject != null ){
 					map.removeLayer(geoObject);
@@ -592,8 +609,9 @@
 					// Remove a camada principal do mapa
 					map.removeLayer(geojsonObject);
 
-					// Verifica as camadas dos filtros
-					checkClicked();
+					// button 0 clicado por padrão
+					$('#check0').prop("checked", true);
+					check0Clicked();
 
 				}else{
 					// Desabilita checkboxes
@@ -622,12 +640,13 @@
 				}
 			}
 
+			// Adiciona o eventro de click
 			document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
 
   		</script>
 
-
 <!-- *********************************************************************************************** -->
+		<!-- Campo pesquisar -->
 		<div class="divSearch" >
 
 			<p>Alterar data das informações</p>
@@ -648,6 +667,7 @@
 		<br/><br/>
 
 		<div id="div_table"></div>
+<!-- *********************************************************************************************** -->
 
 		<!-- Lista/Tabela de Resultados -->
 		<script type="text/javascript">
@@ -658,12 +678,14 @@
 
 			connect();
 
+			// chama função php para conectar com o banco
 			function connect(){
 
 				if( flag != 0 ){
 
 					flag = 0;
 
+					// Ajax para chamar php de forma assincrona
 					$.ajax({
 			      		url:'municipios_2015_bd.php',
 			      		complete: function (response) {
@@ -676,14 +698,16 @@
 			  	}
 			}
 
+			// Função chamada pelo retorno do php
+			// Constroi a tabela com os resultados
 			function fncMunicipios(response){
 
-				// verifica se tabela ja exista e limpa
 				var d = document.getElementById("wrap");
 				var cont = document.body.contains(d);
 
 				var div = document.getElementById("div_table");
 
+				// verifica se tabela ja exista e limpa
 				if( cont == false ){
 					// div inner
 					var wrap = document.createElement("div");
@@ -828,20 +852,19 @@
 					div.appendChild( center );
 				}
 			}
-		</script>
 
-		<script type="text/javascript"> // Script para pesquisar com enter
+
+// ***********************************************************************************************
+		// Script para pesquisar ao pressionar enter
 			$(document).ready(function(){
 				$('#inputSearch').keypress(function(e){
 					if(e.keyCode==13)
 					    $('#buttonSearch').click();
 				});
 			});
-		</script>
+// ***********************************************************************************************
 
-		<!-- Campo pesquisar -->
-		<script type="text/javascript">
-
+			//Funçao pesquisar
 			function btnSearch(){ // funcao pesquisar
 
 				var inputSearch = document.getElementById("inputSearch");
@@ -857,6 +880,7 @@
 
 						// elimina espaços antes e depois, se houver
 						var value = (inputSearch.value).trim();
+
 
 						$.ajax({
 				      		url:'municipios_2015_search.php',
