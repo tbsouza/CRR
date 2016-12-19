@@ -4,14 +4,9 @@
 		}
 */
 
-/* body do html*/
-body{ 
-	background-color: white;
-}
-
 /* titulos h2*/	
 h2{
-	font-size: 150%;
+	font-size: 140%;
 	font-family: Verdana;
 	color: blue;
 	position: relative;
@@ -53,8 +48,9 @@ div{
 html, body {
     padding: 0;
     height: 100%;
-    width: 98%;
+    width: 100%;
     margin: 0 auto;
+    background-color: white;
 }
 
 #div{
@@ -93,10 +89,13 @@ a:hover{
 .mapViewer{
 	border-radius: 2px;
 	border: 1px solid #C5C5C5; 
-	width: 85%; 
+	width: 75%; 
 	height: 90%;
     margin: 0 auto;
-   /* position: absolute; */
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 0;
 }
 
 /* informacoes dos municipios ao passar mouse */
@@ -228,4 +227,65 @@ table.inner_table tr td{
 
 #tr:hover{
 	background-color: white;
+}
+
+#outer{
+	z-index: 0;
+	width:100%
+}
+
+#load{
+	width: 75%; 
+	height: 90%;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.85);
+    left: 0;
+    right: 0;
+    margin-top: 25px;
+}
+
+#loadInner{
+	width: 220px;
+	height: 85px;
+	border-radius: 4px;
+	border: 1px solid #C5C5C5;
+	text-align: center;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+}
+
+#loadCircle{
+	width: 20px;
+    height: 20px;
+    background-color: #00008B;
+    border-radius: 100%;
+    position: relative;
+    -webkit-animation: mymove 3s infinite; /* Safari 4.0 - 8.0 */
+    animation: move 3s infinite;
+    animation-direction: alternate;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out;
+}
+
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes move {
+	0%   {background-color: #00008B;}
+    /*33%  {background-color: #87CEFA;}*/
+    50%  {background-color: #1E90FF;}
+    100% {background-color: #00008B;}
+
+    from {left: 60px;}
+    to {left: 132px;}
+}
+
+/* Standard syntax  - animation code*/
+@keyframes move {
+	0%   {background-color: #00008B;}
+    /*33%  {background-color: #87CEFA;}*/
+    50%  {background-color: #1E90FF;}
+    100% {background-color: #00008B;}
+
+    from {left: 60px;}
+    to {left: 132px;}
 }

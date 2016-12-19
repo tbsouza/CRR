@@ -48,34 +48,167 @@
 		<h2> IDHM - 2010</h2>
 
 		<!-- Campo que sera adicionado o mapa -->
-	  	<div id="map" class="mapViewer"></div>
+		<div id="outer">
+	  		<div id="map" class="mapViewer"></div>
+	  	</div>
+
+	  	<div id="load" class="load">
+	  		<div id="loadInner" class="loadInner">
+		  		<p>Aguarde o mapa ser carregado.</p>	
+		  		<div id="loadCircle"></div>
+	  		</div>
+	  	</div>
 
   		<script type="text/javascript">
   		
+ //********************** Variáveis Gloabais ********************************
   			// Objeto GeoJson com informações dos municípios
-  			var geojsonObject, geoObject;
-  			var gjson;
+  			var geojsonObject=null, geoObject=null, gjson=null;
+  			
+  			// Variável que reberá o mapa
+  			var map=null;
+
+  			// Posição do centro
+			var lat = -15, lon = -55, zoom = 4;
+
+			// variáveis do marcador e popup
+			var circle=null, popup=null;
+
+			// Adiciona Campo para mensagem
+			var info = L.control();
+//***************************************************************************
 
   			function getGJSON(){
+
+  				// TODO: Habilita loading animation
 
   				// arquivo GEOJson a ser aberto
   				var url = "informacoes_geojson.geojson";
 
 	  			// Abre o GeoJson com os dados
 	  			$.getJSON(url, function(json) {
+
+	  				$('.loadInner').hide();
+
+	  				// TODO: Desabilita loading animation
+
+					// salva o arquivo GEOJson aberto
+					gjson = json;
+
+					// Cria o mapa
+					createMap();
+
 					// Cria a camada principal a partir do GEOJson
 					geojsonObject = L.geoJson(json, {style: style, onEachFeature: onEachFeature});
 
 					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
-					// salva o arquivo GEOJson aberto
-					gjson = json;
 				});
 
 				// Notificação para usuário aguardar
 				toastr.info("Isso pode demorar um pouco.", "Aguarde o mapa ser carregado!" );
   			}
 
+  			// Função para criar o mapa
+  			function createMap(){
+
+  				// cria um novo mapa
+		  		map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 4);
+
+		  		// Seleciona o basemap
+		  		L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a target="_blank" href="http://www.inatel.br/crr/">CRR</a> Inatel',
+				   		minZoom: 4, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true
+				}).addTo(map);
+
+				info.onAdd = function (map) {
+				    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+				    this.update();
+				    return this._div;
+				};
+
+				// method that we will use to update the control based on feature properties passed
+				info.update = function (props) {
+
+					// Atualiza a div com o dado do município que o mouse esta sobre
+				    this._div.innerHTML = '<h4>Índice de Desenvolvimento Humano</h4>' + (props  ?
+				        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.idhm_2010) + '"></i>' + 
+				        	props.nome + ', ' +  props.uf + '</b><br />' + props.idhm_2010 + '</sup>'  : ' ');
+				};
+
+				// adiciona as informações feitas acima ao mapa
+				info.addTo(map);
+
+
+				// Variável que receberá a legenda do mapa
+				var legend = L.control({position: 'bottomright'});
+
+				// Cria a legenda
+				legend.onAdd = function (map) {
+
+				    var div = L.DomUtil.create('div', 'legend'),
+				    grades = [0.400, 0.500, 0.550, 0.600, 0.650, 0.700, 0.750, 0.800];
+
+				    // checkbox para habilitar o filtro
+				    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filter <br> ';
+
+				    // loop through our population intervals and generate a label with a colored square for each interval
+				    for (var i = 0; i < grades.length; i++) {
+				        div.innerHTML +=
+				            '<i class="legenda" style="background:' + getColor(grades[i]) + '"/></i><input id="check' + i + 
+				            '" type="radio" disabled/> ' +
+				            grades[i] + (grades[i + 1] ? ' &ndash; ' + grades[i + 1] + '<br>' : ' +');
+				    }
+
+				    return div;
+				};
+
+				// adiciona a legenda (criada acima) ao mapa
+				legend.addTo(map);
+
+				// Cria um toolbar para os botoes
+				var buttons = [
+
+					// Botão para centralizar
+					L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
+					    map.setView([lat, lon], zoom);
+					}, 'Center'),
+
+					// Botão para localizar posição do usuário
+					L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
+					    map.locate({setView : true, maxZoom: 10});
+					}, 'Locate'),
+
+					// Botão para limpar marcadores
+					L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
+					    removeMarkers();
+					}, 'Clear')
+				];
+
+				// adiciona o toolbar no mapa
+				L.easyBar(buttons).addTo(map);
+
+				// Quando encontrar a localilação chama a função onLocationFound
+				map.on('locationfound', onLocationFound);
+
+				// Quando houver um erro na localização chama a função onLocationError
+				map.on('locationerror', onLocationError);
+
+				// Adiciona ação dos checkboxes
+				document.getElementById("check0").addEventListener("click", check0Clicked, true);
+				document.getElementById("check1").addEventListener("click", check1Clicked, true);
+				document.getElementById("check2").addEventListener("click", check2Clicked, true);
+				document.getElementById("check3").addEventListener("click", check3Clicked, true);
+				document.getElementById("check4").addEventListener("click", check4Clicked, true);
+				document.getElementById("check5").addEventListener("click", check5Clicked, true);
+				document.getElementById("check6").addEventListener("click", check6Clicked, true);
+				document.getElementById("check7").addEventListener("click", check7Clicked, true);
+
+				// Adiciona o eventro de click
+				document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
+  			}
+
+//***************************************************************************************
   			// configura o toastr (toast messages)
   			configureToast();
 
@@ -87,7 +220,7 @@
 					"onclick": null,
 					"showDuration": "1000",
 					"hideDuration": "2500",
-					"timeOut": "5000",
+					"timeOut": "4000",
 					"extendedTimeOut": "1000",
 					"showEasing": "linear",
 					"hideEasing": "linear",
@@ -98,15 +231,7 @@
 	 				"escapeHtml": true
 				}
 			}
-
-  			// cria um novo mapa
-  			var map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 4);
-
-  			// Seleciona o basemap
-  			L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a target="_blank" href="http://www.inatel.br/crr/">CRR</a> Inatel',
-			    minZoom: 4, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true
-			}).addTo(map);
+//***************************************************************************************
 
   			// Funcao para diferenciar o estilo de cada feicao (padrão)
   			function getColor(p) {
@@ -185,81 +310,6 @@
 			    });
 			}
 
-			// Adiciona Campo para mensagem
-			var info = L.control();
-
-			info.onAdd = function (map) {
-			    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-			    this.update();
-			    return this._div;
-			};
-
-			// method that we will use to update the control based on feature properties passed
-			info.update = function (props) {
-
-				// Atualiza a div com o dado do município que o mouse esta sobre
-			    this._div.innerHTML = '<h4>Índice de Desenvolvimento Humano</h4>' + (props  ?
-			        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.idhm_2010) + '"></i>' + 
-			        	props.nome + ', ' +  props.uf + '</b><br />' + props.idhm_2010 + '</sup>'  : ' ');
-			};
-
-			// adiciona as informações feitas acima ao mapa
-			info.addTo(map);
-
-			// Adiciona legenda
-			var legend = L.control({position: 'bottomright'});
-
-			// Cria a legenda
-			legend.onAdd = function (map) {
-
-			    var div = L.DomUtil.create('div', 'legend'),
-			    grades = [0.400, 0.500, 0.550, 0.600, 0.650, 0.700, 0.750, 0.800];
-
-			    // checkbox para habilitar o filtro
-			    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filter <br> ';
-
-			    // loop through our population intervals and generate a label with a colored square for each interval
-			    for (var i = 0; i < grades.length; i++) {
-			        div.innerHTML +=
-			            '<i class="legenda" style="background:' + getColor(grades[i]) + '"/></i><input id="check' + i + 
-			            '" type="radio" disabled/> ' +
-			            grades[i] + (grades[i + 1] ? ' &ndash; ' + grades[i + 1] + '<br>' : ' +');
-			    }
-
-			    return div;
-			};
-
-			// adiciona a legenda (criada acima) ao mapa
-			legend.addTo(map);
-
-			// Posição do centro
-			var lat = -15, lon = -55, zoom = 4;
-
-			// variáveis do marcador e popup
-			var circle=null, popup=null;
-
-			// Cria um toolbar para os botoes
-			var buttons = [
-
-				// Botão para centralizar
-				L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
-				    map.setView([lat, lon], zoom);
-				}, 'Center'),
-
-				// Botão para localizar posição do usuário
-				L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
-				    map.locate({setView : true, maxZoom: 10});
-				}, 'Locate'),
-
-				// Botão para limpar marcadores
-				L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
-				    removeMarkers();
-				}, 'Clear')
-			];
-
-			// adiciona o toolbar no mapa
-			L.easyBar(buttons).addTo(map);
-
 			// Funções e localização
 			// Ao encontrar localização
 			function onLocationFound(e) {
@@ -285,9 +335,6 @@
 				toastr.success("Localização encontrada");
 			}
 
-			// Quando encontrar a localilação chama a função onLocationFound
-			map.on('locationfound', onLocationFound);
-
 			// Não encontrar localização
 			function onLocationError(e) {
 
@@ -299,9 +346,6 @@
 				// Exibe a msg de erro no console (debug)
 			    console.log(e.message);
 			}
-
-			// Quando houver um erro na localização chama a função onLocationError
-			map.on('locationerror', onLocationError);
 
 			// Função para limpar os marcadores
 			function removeMarkers(){
@@ -615,16 +659,6 @@
 				$('#check6').prop("checked", false);
 			}
 
-			// Adiciona ação dos checkboxes
-			document.getElementById("check0").addEventListener("click", check0Clicked, true);
-			document.getElementById("check1").addEventListener("click", check1Clicked, true);
-			document.getElementById("check2").addEventListener("click", check2Clicked, true);
-			document.getElementById("check3").addEventListener("click", check3Clicked, true);
-			document.getElementById("check4").addEventListener("click", check4Clicked, true);
-			document.getElementById("check5").addEventListener("click", check5Clicked, true);
-			document.getElementById("check6").addEventListener("click", check6Clicked, true);
-			document.getElementById("check7").addEventListener("click", check7Clicked, true);
-
 			// Remove todas as camadas de filtros
 			function removeFilter(){
 				if( geoObject != null ){
@@ -681,12 +715,7 @@
 					geojsonObject.addTo(map);
 				}
 			}
-
-			// Adiciona o eventro de click
-			document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
-
   		</script>
-
 
 <!-- *********************************************************************************************** -->
 		<!-- Campo pesquisar -->
