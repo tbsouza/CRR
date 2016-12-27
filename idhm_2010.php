@@ -3,9 +3,15 @@
 	<head>
 
 		<meta charset="UTF-8"> <!-- Formato de codificação dos caracteres -->
-		<meta http-equiv="Content-Type" content="text/html/map; charset=utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="keywords" content="CRR,Inatel,IDHM,Desenvolvimento,2010">
+		<meta name="author" content="Thiago Souza">
+		<meta name="description" content="Índice de Desenvolvimento Municipal 2010 Brasil - CRR">
+		<meta property="og:title" content="IDHM 2010 - CRR">
+		<meta property="og:image" content="crr_logo_pequeno.png">
+		<meta property="og:description" content="Índice de Desenvolvimento Humano Municipal no Brasil em 2010.">
+		<meta property="og:site_name" content="Centro de Referência em Radiocomunicações">
 
 		<meta http-equiv='cache-control' content='no-cache'>
 		<meta http-equiv='expires' content='0'>
@@ -42,7 +48,7 @@
 
 	</head>
 
-	<body id="body" onload="getGJSON()">
+	<body id="body" onload="getJSON()">
 
 		<!-- Titulo da pagina -->
 		<h2> IDHM - 2010</h2>
@@ -78,9 +84,10 @@
 			var info = L.control();
 //***************************************************************************
 
-  			function getGJSON(){
+  			function getJSON(){
 
-  				// TODO: Habilita loading animation
+  				// Verifica o navegador do usuário
+  				verifyBrowser();
 
   				// arquivo GEOJson a ser aberto
   				var url = "informacoes_geojson.geojson";
@@ -88,9 +95,8 @@
 	  			// Abre o GeoJson com os dados
 	  			$.getJSON(url, function(json) {
 
+	  				// Oculta a div com loading
 	  				$('.loadInner').hide();
-
-	  				// TODO: Desabilita loading animation
 
 					// salva o arquivo GEOJson aberto
 					gjson = json;
@@ -109,7 +115,16 @@
 				toastr.info("Isso pode demorar um pouco.", "Aguarde o mapa ser carregado!" );
   			}
 
-  			// Função para criar o mapa
+  			function verifyBrowser(){
+
+  				// Se for Internet Explore ou Edge  
+  				// sugere para usuário utilizar outro navegador
+  				if(L.Browser.ie || L.Browser.edge){
+  					alert( "Para uma melhor experiência, recomendamos que você utilize outro navegador. " );
+  				}
+  			}
+
+  			// Função para criar o mapa	
   			function createMap(){
 
   				// cria um novo mapa
@@ -202,7 +217,6 @@
 				document.getElementById("check4").addEventListener("click", check4Clicked, true);
 				document.getElementById("check5").addEventListener("click", check5Clicked, true);
 				document.getElementById("check6").addEventListener("click", check6Clicked, true);
-				document.getElementById("check7").addEventListener("click", check7Clicked, true);
 
 				// Adiciona o eventro de click
 				document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
@@ -270,7 +284,7 @@
 			    });
 
 			    // Coloca a camada na frente das outras (por cima)
-			    layer.bringToFront();
+			    if(!L.Browser.ie && !L.Browser.edge){ layer.bringToFront(); }
 
 			    // Coloca o circulo na frente da camada
 			    if( circle != null ){ circle.bringToFront(); }
@@ -340,7 +354,7 @@
 
 				// Evita memsagem de erro se estourar o timeout da localização
 				if( e.message != "Geolocation error: Position acquisition timed out." ){
-					toastr.error("Não foi possível encontrar sua posição");
+					toastr.error("Não foi possível encontrar sua localização");
 				}
 
 				// Exibe a msg de erro no console (debug)

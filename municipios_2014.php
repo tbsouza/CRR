@@ -3,9 +3,15 @@
 	<head>
 
 		<meta charset="UTF-8"> <!-- Formato de codificação dos caracteres -->
-		<meta http-equiv="Content-Type" content="text/html/map; charset=utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="keywords" content="CRR,Inatel,População,Brasil,2014">
+		<meta name="author" content="Thiago Souza">
+		<meta name="description" content="População do Brasil por Município - 2014">
+		<meta property="og:title" content="População 2014 - CRR">
+		<meta property="og:image" content="crr_logo_pequeno.png">
+		<meta property="og:description" content="População do Brasil por Município em 2014.">
+		<meta property="og:site_name" content="Centro de Referência em Radiocomunicações">
 
 		<meta http-equiv='cache-control' content='no-cache'>
 		<meta http-equiv='expires' content='0'>
@@ -42,43 +48,183 @@
 
 	</head>
 
-	<body id="body" onload="getGJSON()">
+	<body id="body" onload="getJSON()">
 
 		<!-- Titulo da pagina -->
 		<h2> População do Brasil - 2014 </h2>
 
 		<!-- Campo que sera adicionado o mapa -->
-	  	<div id="map" class="mapViewer"></div>
+		<div id="outer">
+	  		<div id="map" class="mapViewer"></div>
+	  	</div>
+
+	  	<div id="load" class="load">
+	  		<div id="loadInner" class="loadInner">
+		  		<p>Aguarde o mapa ser carregado.</p>	
+		  		<div id="loadCircle"></div>
+	  		</div>
+	  	</div>
 
   		<script type="text/javascript">
   		
+ //********************** Variáveis Gloabais ********************************
   			// Objeto GeoJson com informações dos municípios
-  			var geojsonObject, geoObject;
-  			var gjson;
+  			var geojsonObject=null, geoObject=null, gjson=null;
+  			
+  			// Variável que reberá o mapa
+  			var map=null;
+
+  			// Posição do centro
+			var lat = -15, lon = -55, zoom = 4;
+
+			// variáveis do marcador e popup
+			var circle=null, popup=null;
+
+			// Adiciona Campo para mensagem
+			var info = L.control();
+//***************************************************************************
 
   			// Função para abrir o geojson via ajax
-  			function getGJSON(){
+  			function getJSON(){
+
+  				// Verifica o navegador do usuário
+  				verifyBrowser();
 
   				// arquivo GEOJson a ser aberto
   				var url = "informacoes_geojson.geojson";
-  				//var url = "pop_2014_2015.geojson";
 
 	  			// Abre o GeoJson com os dados
 	  			$.getJSON(url, function(json) {
+
+	  				// Oculta a div com loading
+	  				$('.loadInner').hide();
+
+					// salva o arquivo GEOJson aberto
+					gjson = json;
+
+					// Cria o mapa
+					createMap();
+
 					// Cria a camada principal a partir do GEOJson
 					geojsonObject = L.geoJson(json, {style: style, onEachFeature: onEachFeature});
 
 					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
-					
-					// salva o arquivo GEOJson aberto
-					gjson = json;
 				});
 
-	  			// Notificação para usuário aguardar
+				// Notificação para usuário aguardar
 				toastr.info("Isso pode demorar um pouco.", "Aguarde o mapa ser carregado!" );
   			}
 
+  			function verifyBrowser(){
+
+  				// Se for Internet Explore ou Edge  
+  				// sugere para usuário utilizar outro navegador
+  				if(L.Browser.ie || L.Browser.edge){
+  					alert( "Para uma melhor experiência, recomendamos que você utilize outro navegador. " );
+  				}
+  			}
+
+  			// Função para criar o mapa
+  			function createMap(){
+
+  				// cria um novo mapa
+		  		map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 4);
+
+		  		// Seleciona o basemap
+		  		L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a target="_blank" href="http://www.inatel.br/crr/">CRR</a> Inatel',
+				   		minZoom: 4, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true
+				}).addTo(map);
+
+
+				info.onAdd = function (map) {
+				    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+				    this.update();
+				    return this._div;
+				};
+
+				// method that we will use to update the control based on feature properties passed
+				info.update = function (props) {
+
+					// Atualiza a div com o dado do município que o mouse esta sobre
+				    this._div.innerHTML = '<h4>População por Município &nbsp;&nbsp;&nbsp;</h4>' + (props  ?
+				        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.pop_2014) + '"></i>' + 
+				        	props.nome + ', ' +  props.uf + '</b><br />' + props.pop_2014 + '</sup>'  : ' ');
+				};
+
+				// adiciona as informações feitas acima ao mapa
+				info.addTo(map);
+
+
+				// Variável que receberá a legenda do mapa
+				var legend = L.control({position: 'bottomright'});
+
+				// Cria a legenda
+				legend.onAdd = function (map) {
+
+				    var div = L.DomUtil.create('div', 'legend'),
+				        grades = [0, 10000, 20000, 90000, 300000, 600000, 2000000];
+
+				    // checkbox para habilitar o filtro
+				    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filtrar <br> ';
+
+				    // loop through our population intervals and generate a label with a colored square for each interval
+				    for (var i = 0; i < grades.length; i++) {
+				        div.innerHTML +=
+				            '<i class="legenda" style="background:' + getColor(grades[i] + 1) + '"/></i><input id="check' + i + 
+				            '" type="radio" disabled/> ' +
+				            grades[i] + (grades[i + 1] ? ' &ndash; ' + grades[i + 1] + '<br>' : ' +');
+				    }
+
+				    return div;
+				};
+
+				// adiciona a legenda (criada acima) ao mapa
+				legend.addTo(map);
+
+				// Cria um toolbar para os botoes
+				var buttons = [
+
+					// Botão para centralizar
+					L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
+					    map.setView([lat, lon], zoom);
+					}, 'Center'),
+
+					// Botão para localizar posição do usuário
+					L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
+					    map.locate({setView : true, maxZoom: 10});
+					}, 'Locate'),
+
+					// Botão para limpar marcadores
+					L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
+					    removeMarkers();
+					}, 'Clear')
+				];
+
+				// adiciona o toolbar no mapa
+				L.easyBar(buttons).addTo(map);
+
+				// Quando encontrar a localilação chama a função onLocationFound
+				map.on('locationfound', onLocationFound);
+
+				// Quando houver um erro na localização chama a função onLocationError
+				map.on('locationerror', onLocationError);
+
+				// Adiciona ação dos checkboxes
+				document.getElementById("check0").addEventListener("click", check0Clicked, true);
+				document.getElementById("check1").addEventListener("click", check1Clicked, true);
+				document.getElementById("check2").addEventListener("click", check2Clicked, true);
+				document.getElementById("check3").addEventListener("click", check3Clicked, true);
+				document.getElementById("check4").addEventListener("click", check4Clicked, true);
+				document.getElementById("check5").addEventListener("click", check5Clicked, true);
+				document.getElementById("check6").addEventListener("click", check6Clicked, true);
+
+				// Adiciona o eventro de click
+				document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
+  			}
+
+//***************************************************************************************
   			// configura o toastr (toast messages)
   			configureToast();
 
@@ -101,15 +247,6 @@
 	 				"escapeHtml": true
 				}
 			}
-			
-  			// cria um novo mapa
-  			var map = L.map('map', {fullscreenControl: true }).setView([-15, -55], 4);
-
-  			// Seleciona o basemap
-  			L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-			    attribution: '&copy; <a target="_blank" href="http://www.inatel.br/crr/">CRR</a> Inatel',
-			    minZoom: 4, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true
-			}).addTo(map);
 
   			// Funcao para diferenciar o estilo de cada feicao (padrão)
   			function getColor(p) {
@@ -147,7 +284,7 @@
 			    });
 
 			    // Coloca a camada na frente das outras (por cima)
-			    layer.bringToFront();
+			    if(!L.Browser.ie && !L.Browser.edge){ layer.bringToFront(); }
 
 			    // Coloca o circulo na frente da camada
 			    if( circle != null ){ circle.bringToFront(); }
@@ -187,80 +324,6 @@
 			    });
 			}
 
-			// Adiciona Campo para mensagem
-			var info = L.control();
-
-			info.onAdd = function (map) {
-			    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-			    this.update();
-			    return this._div;
-			};
-
-			// method that we will use to update the control based on feature properties passed
-			info.update = function (props) {
-
-				// Atualiza a div com o dado do município que o mouse esta sobre
-			    this._div.innerHTML = '<h4>População por Município &nbsp;&nbsp;&nbsp;</h4>' + (props  ?
-			        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.pop_2014) + '"></i>' + 
-			        	props.nome + ', ' +  props.uf + '</b><br />' + props.pop_2014 + ' habitantes</sup>'  : ' ');
-			};
-
-			// adiciona as informações feitas acima ao mapa
-			info.addTo(map);
-
-			// Adiciona legenda
-			var legend = L.control({position: 'bottomright'});
-
-			// Cria a legenda
-			legend.onAdd = function (map) {
-
-			    var div = L.DomUtil.create('div', 'legend'),
-			        grades = [0, 10000, 20000, 90000, 300000, 600000, 2000000];
-
-			    // checkbox para habilitar o filtro
-			    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filtrar <br> ';
-
-			    // loop through our population intervals and generate a label with a colored square for each interval
-			    for (var i = 0; i < grades.length; i++) {
-			        div.innerHTML +=
-			            '<i class="legenda" style="background:' + getColor(grades[i] + 1) + '"/></i><input id="check' + i + 
-			            '" type="radio" disabled/> ' +
-			            grades[i] + (grades[i + 1] ? ' &ndash; ' + grades[i + 1] + '<br>' : ' +');
-			    }
-
-			    return div;
-			};
-
-			// adiciona a legenda (criada acima) ao mapa
-			legend.addTo(map);
-
-			// Posição do centro
-			var lat = -15, lon = -55, zoom = 4;
-
-			// variáveis do marcador e popup
-			var circle=null, popup=null;
-
-			// Cria um toolbar para os botoes
-			var buttons = [
-
-				// Botão para centralizar
-				L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
-				    map.setView([lat, lon], zoom);
-				}, 'Center'),
-
-				// Botão para localizar posição do usuário
-				L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
-				    map.locate({setView : true, maxZoom: 10});
-				}, 'Locate'),
-
-				// Botão para limpar marcadores
-				L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
-				    removeMarkers();
-				}, 'Clear')
-			];
-
-			// adiciona o toolbar no mapa
-			L.easyBar(buttons).addTo(map);
 
 			// Funções e localização
 			// Ao encontrar localização
@@ -287,23 +350,17 @@
 				toastr.success("Localização encontrada");
 			}
 
-			// Quando encontrar a localilação chama a função onLocationFound
-			map.on('locationfound', onLocationFound);
-
 			// Não encontrar localização
 			function onLocationError(e) {
 
 				// Evita memsagem de erro se estourar o timeout da localização
 				if( e.message != "Geolocation error: Position acquisition timed out." ){
-					toastr.error("Não foi possível encontrar sua posição");
+					toastr.error("Não foi possível encontrar sua localização");
 				}
 
 				// Exibe a msg de erro no console (debug)
 			    console.log(e.message);
 			}
-
-			// Quando houver um erro na localização chama a função onLocationError
-			map.on('locationerror', onLocationError);
 
 			// Função para limpar os marcadores
 			function removeMarkers(){
@@ -577,15 +634,6 @@
 				$('#check5').prop("checked", false);
 			}
 
-			// Adiciona ação dos checkboxes
-			document.getElementById("check0").addEventListener("click", check0Clicked, true);
-			document.getElementById("check1").addEventListener("click", check1Clicked, true);
-			document.getElementById("check2").addEventListener("click", check2Clicked, true);
-			document.getElementById("check3").addEventListener("click", check3Clicked, true);
-			document.getElementById("check4").addEventListener("click", check4Clicked, true);
-			document.getElementById("check5").addEventListener("click", check5Clicked, true);
-			document.getElementById("check6").addEventListener("click", check6Clicked, true);
-
 			// Remove todas as camadas de filtros
 			function removeFilter(){
 				if( geoObject != null ){
@@ -640,9 +688,6 @@
 					geojsonObject.addTo(map);
 				}
 			}
-
-			// Adiciona o eventro de click
-			document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
 
   		</script>
 
