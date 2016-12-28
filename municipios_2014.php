@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 	<head>
-
+		<!-- Metadados -->
 		<meta charset="UTF-8"> <!-- Formato de codificação dos caracteres -->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,10 +12,6 @@
 		<meta property="og:image" content="crr_logo_pequeno.png">
 		<meta property="og:description" content="População do Brasil por Município em 2014.">
 		<meta property="og:site_name" content="Centro de Referência em Radiocomunicações">
-
-		<meta http-equiv='cache-control' content='no-cache'>
-		<meta http-equiv='expires' content='0'>
-		<meta http-equiv='pragma' content='no-cache'>
 		
 		<!-- Titulo da página -->
 		<title> CRR </title>
@@ -84,7 +80,7 @@
 			var info = L.control();
 //***************************************************************************
 
-  			// Função para abrir o geojson via ajax
+  			// Função para abrir o geojson via ajax ao carregar a pagina
   			function getJSON(){
 
   				// Verifica o navegador do usuário
@@ -164,7 +160,7 @@
 				legend.onAdd = function (map) {
 
 				    var div = L.DomUtil.create('div', 'legend'),
-				        grades = [0, 10000, 20000, 90000, 300000, 600000, 2000000];
+				        grades = [800, 10000, 20000, 90000, 300000, 600000, 2000000];
 
 				    // checkbox para habilitar o filtro
 				    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filtrar <br> ';

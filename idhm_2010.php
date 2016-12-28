@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 	<head>
-
+		<!-- Metadados -->
 		<meta charset="UTF-8"> <!-- Formato de codificação dos caracteres -->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,10 +13,6 @@
 		<meta property="og:description" content="Índice de Desenvolvimento Humano Municipal no Brasil em 2010.">
 		<meta property="og:site_name" content="Centro de Referência em Radiocomunicações">
 
-		<meta http-equiv='cache-control' content='no-cache'>
-		<meta http-equiv='expires' content='0'>
-		<meta http-equiv='pragma' content='no-cache'>
-		
 		<!-- Titulo da página -->
 		<title> CRR </title>
 
@@ -84,6 +80,7 @@
 			var info = L.control();
 //***************************************************************************
 
+			// Função chamada quando a página é carregada
   			function getJSON(){
 
   				// Verifica o navegador do usuário
@@ -217,6 +214,7 @@
 				document.getElementById("check4").addEventListener("click", check4Clicked, true);
 				document.getElementById("check5").addEventListener("click", check5Clicked, true);
 				document.getElementById("check6").addEventListener("click", check6Clicked, true);
+				document.getElementById("check7").addEventListener("click", check7Clicked, true);
 
 				// Adiciona o eventro de click
 				document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
@@ -308,10 +306,10 @@
 
 			    // Desenha um circulo na posição do click
 			    circle = L.circle(e.latlng, {
-				    color: 'red',
-				    fillColor: '#f03',
+				    color: '#000000',
+				    fillColor: '#FFFFFF',
 				    fillOpacity: 0.4,
-				    radius: 650
+				    radius: 1200
 				}).addTo(map);
 			}
 
@@ -334,12 +332,12 @@
 				// Verifica se já existe algum circulo desenhado e o remove
 				if( circle!=null ){ map.removeLayer(circle); }
 
-				// Coloca o circulo desenhado por cima
-				circle = L.circle(e.latlng, {
-				    color: 'red',
-				    fillColor: '#f03',
+				// Desenha um circulo na posição do click
+			    circle = L.circle(e.latlng, {
+				    color: '#000000',
+				    fillColor: '#FFFFFF',
 				    fillOpacity: 0.4,
-				    radius: 650
+				    radius: 1200
 				}).addTo(map);
 
 				// Notificação de sucesso
