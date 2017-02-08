@@ -32,11 +32,6 @@
 		<!-- CSS EasyButton -->
 		<link rel="stylesheet" href="easybutton.css" type="text/css" >
 
-		<!-- JavaScript Toastr -->
-		<script src="toastr.js" type="text/javascript"></script>
-		<!-- CSS Toatr -->
-		<link rel="stylesheet" href="toastr.css" type="text/css" >
-
 		<!-- JavaScript FullScreen -->
 		<script src="leaflet.fullscreen.min.js" type="text/javascript"></script>
 		<!-- CSS FullScreen -->
@@ -62,8 +57,10 @@
 	  	</div>
 
   		<script type="text/javascript">
-  		
- //********************** Variáveis Gloabais ********************************
+  	
+// **************** Cria o Mapa, estilos e filtros *************************
+
+//********************** Variáveis Gloabais ********************************
   			// Objeto GeoJson com informações dos municípios
   			var geojsonObject=null, geoObject=null, gjson=null;
   			
@@ -107,9 +104,6 @@
 					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
 				});
-
-				// Notificação para usuário aguardar
-				toastr.info("Isso pode demorar um pouco.", "Aguarde o mapa ser carregado!" );
   			}
 
   			function verifyBrowser(){
@@ -162,7 +156,7 @@
 				    grades = [0.400, 0.500, 0.550, 0.600, 0.650, 0.700, 0.750, 0.800];
 
 				    // checkbox para habilitar o filtro
-				    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filter <br> ';
+				    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filtrar <br> ';
 
 				    // loop through our population intervals and generate a label with a colored square for each interval
 				    for (var i = 0; i < grades.length; i++) {
@@ -185,12 +179,12 @@
 					L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
 					    map.setView([lat, lon], zoom);
 					}, 'Center'),
-
+/*
 					// Botão para localizar posição do usuário
 					L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
 					    map.locate({setView : true, maxZoom: 10});
 					}, 'Locate'),
-
+*/
 					// Botão para limpar marcadores
 					L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
 					    removeMarkers();
@@ -206,7 +200,7 @@
 				// Quando houver um erro na localização chama a função onLocationError
 				map.on('locationerror', onLocationError);
 
-				// Adiciona ação dos checkboxes
+				// Adiciona ação dos checkboxes (Listener do click)
 				document.getElementById("check0").addEventListener("click", check0Clicked, true);
 				document.getElementById("check1").addEventListener("click", check1Clicked, true);
 				document.getElementById("check2").addEventListener("click", check2Clicked, true);
@@ -220,29 +214,6 @@
 				document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
   			}
 
-//***************************************************************************************
-  			// configura o toastr (toast messages)
-  			configureToast();
-
-			function configureToast(){
-	  			toastr.options = {
-					"closeButton": true,
-					"debug": false,
-					"positionClass": "toast-top-right",
-					"onclick": null,
-					"showDuration": "1000",
-					"hideDuration": "2500",
-					"timeOut": "4000",
-					"extendedTimeOut": "1000",
-					"showEasing": "linear",
-					"hideEasing": "linear",
-					"showMethod": "fadeIn",
-					"hideMethod": "fadeOut",
-					"newestOnTop": true,
-	 				"progressBar": false,
-	 				"escapeHtml": true
-				}
-			}
 //***************************************************************************************
 
   			// Funcao para diferenciar o estilo de cada feicao (padrão)
@@ -278,7 +249,7 @@
 			        weight: 4,
 			        color: '#4D4D4D',
 			        dashArray: '',
-			        fillOpacity: 1
+			        fillOpacity: 0.5
 			    });
 
 			    // Coloca a camada na frente das outras (por cima)
@@ -340,11 +311,8 @@
 				    radius: 1200
 				}).addTo(map);
 
-				// Notificação de sucesso
+				// Coloca o circulo sobre as outras camadas
 				circle.bringToFront();
-
-				// Notificação de sucesso
-				toastr.success("Localização encontrada");
 			}
 
 			// Não encontrar localização
@@ -352,7 +320,7 @@
 
 				// Evita memsagem de erro se estourar o timeout da localização
 				if( e.message != "Geolocation error: Position acquisition timed out." ){
-					toastr.error("Não foi possível encontrar sua localização");
+					console.log("Erro ao encontrar localização!");
 				}
 
 				// Exibe a msg de erro no console (debug)
@@ -362,20 +330,15 @@
 			// Função para limpar os marcadores
 			function removeMarkers(){
 				
-				// Se tem algum circulo ou popup mostra notificação
-				if( circle != null || popup != null ){
-					toastr.success("Campos limpos");
-				}
-
-				// Se tem algum circulo desenhado o eleimina
+				// Se tem algum circulo desenhado, é apagado
 				if( circle != null ) {
-				    map.removeLayer(circle);
+				    map.removeLayer(circle); // apaga o circulo
 				    circle=null;
 				}
 
-				// Se tem algum popup desenhado o eleimina
+				// Se tem algum popup desenhado, é apagado 
 				if( popup != null ){
- 					map.removeLayer(popup);
+ 					map.removeLayer(popup); // apaga o popup
 				    popup=null;
 				}
 			}
@@ -539,7 +502,7 @@
 				};
 			}
 
-			// Funções verificar qual botão foi clicado e adiciona a camada no mapa
+			// Funções para verificar qual botão foi clicado e adiciona a camada no mapa
 
 			function check0Clicked(){
 				removeFilter();
@@ -727,6 +690,7 @@
 					geojsonObject.addTo(map);
 				}
 			}
+// ********************* Mapa criado ***************************************			
   		</script>
 
 <!-- *********************************************************************************************** -->
@@ -745,12 +709,21 @@
 
 		<div id="div_table"></div>
 
-		<!-- Lista/Tabela de Resultados -->
+		<!-- Criação da Tabela de Resultados -->
 		<script type="text/javascript">
 
-			// variaveis globais
+// **************** Acessa o banco para retornar todos os resultados *******************
+
+			// Variáveis globais
+
 			var flag = 1;     // verificar se o usuário está realizando a mesma busca
+			// Isso evita que o usuário busque a mesma coisa várias vezes em sequencia
+			// (evita acessar o bd e retornar o mesmo resultado várias vezes)
+
 			var content = ""; // conteúdo digitado pelo usuário para pesquisa
+
+			var _coluna = "IDHM_2010"; // Variável que será passada para o php
+			// Representa o nome da coluna no bd que será consultada
 
 			connect();
 
@@ -760,21 +733,26 @@
 
 					flag = 0;
 
-					// Ajax para chamar php de forma assincrona
+					// Ajax para chamar php de forma assíncrona
 					$.ajax({
-			      		url:'idhm_2010_bd.php',
+			      		url:'banco_todos.php',    // função php que conecta com o banco
+			      		method: "post",           // método usado para passar os parâmetros
+				      	data: {coluna: _coluna }, // parâmetros passados para o php
 			      		complete: function (response) {
+			      			// Chama a função para construir a tabela passando os resultados
 			         		fncMunicipios(response.responseText);
 			      		},
 			      		error: function () {
+			      			// Caso ocorra algum erro na conexão
 			          		console.log('Error');
 			     		}
 			  		});
 			  	}
 			}
+// ***********************************************************************************			
 
 			// Função chamada pelo retorno do php
-			// Constroi a tabela com os resultados
+			// Constroi a tabela com os resultados retornados
 			function fncMunicipios(response){
 
 				// verifica se tabela ja exista e limpa
@@ -929,7 +907,9 @@
 			}
 		
 			//Funçao pesquisar
-			function btnSearch(){ 
+			function btnSearch(){
+
+// **************** Acessa o banco para retornar os dados pesquisados *************************
 
 				var inputSearch = document.getElementById("inputSearch");
 
@@ -944,11 +924,12 @@
 
 						// elimina espaços antes e depois, se houver
 						var value = (inputSearch.value).trim();
+						var _from = "IDHM_2010";
 
 						$.ajax({
-				      		url:'idhm_2010_search.php',
+				      		url:'banco_busca.php',
 				      		method: "post",
-				      		data: {text: value},
+				      		data: {text: value, from: _from },
 				      		complete: function (response) {
 				         		fncMunicipios(response.responseText);
 				      		},
