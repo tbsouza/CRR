@@ -32,11 +32,6 @@
 		<!-- CSS EasyButton -->
 		<link rel="stylesheet" href="easybutton.css" type="text/css" >
 
-		<!-- JavaScript Toastr -->
-		<script src="toastr.js" type="text/javascript"></script>
-		<!-- CSS Toatr -->
-		<link rel="stylesheet" href="toastr.css" type="text/css" >
-
 		<!-- JavaScript FullScreen -->
 		<script src="leaflet.fullscreen.min.js" type="text/javascript"></script>
 		<!-- CSS FullScreen -->
@@ -107,9 +102,6 @@
 					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
 				});
-
-				// Notificação para usuário aguardar
-				toastr.info("Isso pode demorar um pouco.", "Aguarde o mapa ser carregado!" );
   			}
 
   			function verifyBrowser(){
@@ -185,12 +177,12 @@
 					L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
 					    map.setView([lat, lon], zoom);
 					}, 'Center'),
-
+/*
 					// Botão para localizar posição do usuário
 					L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
 					    map.locate({setView : true, maxZoom: 10});
 					}, 'Locate'),
-
+*/
 					// Botão para limpar marcadores
 					L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
 					    removeMarkers();
@@ -219,29 +211,6 @@
 				document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
   			}
 
-//***************************************************************************************
-  			// configura o toastr (toast messages)
-  			configureToast();
-
-			function configureToast(){ // opções do toastr
-	  			toastr.options = {
-					"closeButton": true,
-					"debug": false,
-					"positionClass": "toast-top-right",
-					"onclick": null,
-					"showDuration": "1000",
-					"hideDuration": "2500",
-					"timeOut": "5000",
-					"extendedTimeOut": "1000",
-					"showEasing": "linear",
-					"hideEasing": "linear",
-					"showMethod": "fadeIn",
-					"hideMethod": "fadeOut",
-					"newestOnTop": true,
-	 				"progressBar": false,
-	 				"escapeHtml": true
-				}
-			}
 //***************************************************************************************
 
   			// Funcao para diferenciar o estilo de cada feicao (padrão)
@@ -359,18 +328,10 @@
 
 				// Coloca o circulo desenhado por cima
 				circle.bringToFront();
-
-				// Notificação de sucesso
-				toastr.success("Localização encontrada");
 			}
 
 			// Não encontrar localização
 			function onLocationError(e) {
-
-				// Evita memsagem de erro se estourar o timeout da localização
-				if( e.message != "Geolocation error: Position acquisition timed out." ){
-					toastr.error("Não foi possível encontrar sua localização");
-				}
 
 				// Exibe a msg de erro no console (debug)
 			    console.log(e.message);
@@ -378,11 +339,6 @@
 
 			// Função para limpar os marcadores
 			function removeMarkers(){
-				
-				// Se tem algum circulo ou popup mostra notificação
-				if( circle != null || popup != null ){
-					toastr.success("Campos limpos");
-				}
 
 				// Se tem algum circulo desenhado o eleimina
 				if( circle != null ) {
@@ -729,9 +685,16 @@
 		<!-- Lista/Tabela de Resultados -->
 		<script type="text/javascript">
 
-			// variaveis globais
+			// Variáveis globais
+
 			var flag = 1;     // verificar se o usuário está realizando a mesma busca
+			// Isso evita que o usuário busque a mesma coisa várias vezes em sequencia
+			// (evita acessar o bd e retornar o mesmo resultado várias vezes)
+
 			var content = ""; // conteúdo digitado pelo usuário para pesquisa
+
+			var _coluna = "POP_2015"; // Variável que será passada para o php
+			// Representa o nome da coluna no bd que será consultada
 
 			connect();
 
@@ -742,14 +705,18 @@
 
 					flag = 0;
 
-					// Ajax para chamar php de forma assincrona
+					// Ajax para chamar php de forma assíncrona
 					$.ajax({
-			      		url:'municipios_2015_bd.php',
+			      		url:'banco_todos.php',    // função php que conecta com o banco
+			      		method: "post",           // método usado para passar os parâmetros
+				      	data: {coluna: _coluna }, // parâmetros passados para o php
 			      		complete: function (response) {
+			      			// Chama a função para construir a tabela passando os resultados
 			         		fncMunicipios(response.responseText);
 			      		},
 			      		error: function () {
-			          		alert('Error');
+			      			// Caso ocorra algum erro na conexão
+			          		console.log('Error');
 			     		}
 			  		});
 			  	}
@@ -910,19 +877,9 @@
 				}
 			}
 
-
-// ***********************************************************************************************
-		// Script para pesquisar ao pressionar enter
-			$(document).ready(function(){
-				$('#inputSearch').keypress(function(e){
-					if(e.keyCode==13)
-					    $('#buttonSearch').click();
-				});
-			});
-// ***********************************************************************************************
-
+// **************** Acessa o banco para retornar os dados pesquisados *************************
 			//Funçao pesquisar
-			function btnSearch(){ // funcao pesquisar
+			function btnSearch(){
 
 				var inputSearch = document.getElementById("inputSearch");
 
@@ -937,12 +894,12 @@
 
 						// elimina espaços antes e depois, se houver
 						var value = (inputSearch.value).trim();
-
+						var _from = "POP_2014";
 
 						$.ajax({
-				      		url:'municipios_2015_search.php',
+				      		url:'banco_busca.php',
 				      		method: "post",
-				      		data: {text: value},
+				      		data: {text: value, from: _from },
 				      		complete: function (response) {
 				         		fncMunicipios(response.responseText);
 				      		},
@@ -961,7 +918,16 @@
 				// atualiza content
 				content = inputSearch.value;
 			}
-		</script>
 
+			// ***********************************************************************************************
+			// Script para pesquisar ao pressionar enter
+			$(document).ready(function(){
+				$('#inputSearch').keypress(function(e){
+					if(e.keyCode==13)
+					    $('#buttonSearch').click();
+				});
+			});
+
+		</script>
 	</body>
 </html>
