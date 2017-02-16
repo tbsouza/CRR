@@ -137,7 +137,7 @@
 					// Atualiza a div com o dado do município que o mouse esta sobre
 				    this._div.innerHTML = '<h4>População por Município &nbsp;&nbsp;&nbsp;</h4>' + (props  ?
 				        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.pop_2015) + '"></i>' + 
-				        	props.nome + ', ' +  props.uf + '</b><br />' + props.pop_2015 + '</sup>'  : ' ');
+				        	props.nome + ', ' +  props.uf + '</b><br />' + props.pop_2015 + ' habitantes</sup>'  : ' ');
 				};
 
 				// adiciona as informações feitas acima ao mapa
@@ -232,7 +232,7 @@
 			        opacity: 0.98,
 			        color: 'grey',
 			        dashArray: '',
-			        fillOpacity: 0.7
+			        fillOpacity: 0.8
 			    };
 			}
 
@@ -245,7 +245,7 @@
 			        weight: 4,
 			        color: '#4D4D4D',
 			        dashArray: '',
-			        fillOpacity: 1
+			        fillOpacity: 0.5
 			    });
 
 			    // Coloca a camada na frente das outras (por cima)
@@ -295,17 +295,17 @@
 				// Botão para centralizar
 				L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
 				    map.setView([lat, lon], zoom);
-				}, 'Center'),
-
+				}, 'Centralizar'),
+/*
 				// Botão para localizar posição do usuário
 				L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
 				    map.locate({setView : true, maxZoom: 10});
 				}, 'Locate'),
-
+*/
 				// Botão para limpar marcadores
 				L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
 				    removeMarkers();
-				}, 'Clear')
+				}, 'Limpar')
 			];
 
 			// Funções e localização
