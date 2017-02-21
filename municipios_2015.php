@@ -177,12 +177,7 @@
 					L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
 					    map.setView([lat, lon], zoom);
 					}, 'Center'),
-/*
-					// Botão para localizar posição do usuário
-					L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
-					    map.locate({setView : true, maxZoom: 10});
-					}, 'Locate'),
-*/
+
 					// Botão para limpar marcadores
 					L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
 					    removeMarkers();
@@ -191,12 +186,6 @@
 
 				// adiciona o toolbar no mapa
 				L.easyBar(buttons).addTo(map);
-
-				// Quando encontrar a localilação chama a função onLocationFound
-				map.on('locationfound', onLocationFound);
-
-				// Quando houver um erro na localização chama a função onLocationError
-				map.on('locationerror', onLocationError);
 
 				// Adiciona ação dos checkboxes
 				document.getElementById("check0").addEventListener("click", check0Clicked, true);
@@ -287,54 +276,6 @@
 			        mouseout: resetHighlight,
 			        click: zoomToFeature
 			    });
-			}
-
-			// Cria um toolbar para os botoes
-			var buttons = [
-
-				// Botão para centralizar
-				L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
-				    map.setView([lat, lon], zoom);
-				}, 'Centralizar'),
-/*
-				// Botão para localizar posição do usuário
-				L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
-				    map.locate({setView : true, maxZoom: 10});
-				}, 'Locate'),
-*/
-				// Botão para limpar marcadores
-				L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
-				    removeMarkers();
-				}, 'Limpar')
-			];
-
-			// Funções e localização
-			// Ao encontrar localização
-			function onLocationFound(e) {
-
-				// Cria popup indicando a localização do usuário
-				popup = L.popup().setLatLng(e.latlng).setContent("Você está aqui!").openOn(map);
-
-				// Verifica se já existe algum circulo desenhado e o remove
-				if( circle!=null ){ map.removeLayer(circle); }
-
-			    // Desenha um circulo na localização do usuario
-				circle = L.circle(e.latlng, {
-				    color: 'red',
-				    fillColor: '#f03',
-				    fillOpacity: 0.4,
-				    radius: 650
-				}).addTo(map);
-
-				// Coloca o circulo desenhado por cima
-				circle.bringToFront();
-			}
-
-			// Não encontrar localização
-			function onLocationError(e) {
-
-				// Exibe a msg de erro no console (debug)
-			    console.log(e.message);
 			}
 
 			// Função para limpar os marcadores

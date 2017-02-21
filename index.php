@@ -9,24 +9,36 @@
 		
 		<!-- Titulo da página -->
 		<title> CRR </title>
+
+		<!-- JQuery -->
+		<script src="jquery-3.0.0.js" ></script>
+
+		<!-- JavaScript Leaflet -->
+		<script src="leaflet.js" type="text/javascript"></script>
+		<!-- CSS Leaflet -->
+		<link rel="stylesheet" href="leaflet.css" type="text/css" >
+
+
 		
 		<!-- imports -->
 		<link type="text/css" rel="stylesheet" href="stylesheet.css"/>
-		<script src="jquery-3.0.0.js" ></script>
-		<link type="text/css" rel="stylesheet" href="arcgis_main.css"> 
-		<script src="arcgisjs.js"></script>
-		<script src="//npmcdn.com/angular-esri-map@2"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js" data-dojo-config="async: true"></script>
 	</head>
 
-	<body id="body">
+	<body id="body" onload="onLoad()">
 
 		<center> <!-- Centraliza tudo-->
 
 			<div>
-				<img class="imgCRR" src="crr_logo.png" alt="CRR" title="Centro de Referência em Radiocomunicações">
+				<img class="imgCRR" src="crr_logo.png" alt="CRR" title="Centro de Referência em Radiocomunicações"/>
 			</div>
 
+			<form>
+				<br />
+				<a  href="municipios_2014.php" target="_blank"> População dos municípios brasileiros</a> 	<hr width="330">
+				<a  href="idhm_2010.php" target="_blank"> Índice de Desenvolvimento Humano Municipal</a>
+			</form>
+
+<!--
 			<form>
 				<br />
 				<a  href="backbonefibra.php" target="_blank"> Backbone em fibra óptica</a>       			<hr width="330">
@@ -42,11 +54,42 @@
 				<a  href="esc_urb_sem_bl.php" target="_blank"> Escolas Urbanas Sem Banda Larga</a> 			<hr width="330">
 				<a  href="esc_urb_sem_int.php" target="_blank"> Escolas Urbanas Sem Internet</a> 			<hr width="330">
 				<a  href="pop_rur_2010.php" target="_blank"> Populacao Rural Brasil 2010</a> 				<hr width="330">
-				<a  href="pop_urb_2010.php" target="_blank"> Populacao Urbana Brasil 2010</a>
+				<a  href="pop_urb_2010.php" target="_blank"> Populacao Urbana Brasil 2010</a>				<hr width="330">
+				<a  href="leaflettest.php" target="_blank"> Teste Mapa Leaflet</a>
 			</form>
-
-
+-->
 		</center>
+
+		<script type="text/javascript">
+
+			// Objeto GeoJson com informações dos municípios
+  			var gjson=null;
+
+  			function onLoad(){
+
+  				// Verifica o navegador do usuário
+  				verifyBrowser();
+
+  				// arquivo GEOJson a ser aberto
+  				var url = "informacoes_geojson.geojson";
+
+	  			// Abre o GeoJson com os dados
+	  			$.getJSON(url, function(json) {
+					// salva o arquivo GEOJson aberto
+					gjson = json;
+				});
+  			}
+
+  			function verifyBrowser(){
+
+  				// Se for Internet Explore ou Edge  
+  				// sugere para usuário utilizar outro navegador
+  				if(L.Browser.ie || L.Browser.edge){
+  					alert( "Para uma melhor experiência, recomendamos que você utilize outro navegador. " );
+  				}
+  			}
+
+		</script>
 
 
 	</body>
