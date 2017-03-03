@@ -273,6 +273,13 @@
 				    fillOpacity: 0.4,
 				    radius: 650
 				}).addTo(map);
+
+				var prop = e.target.feature.properties;
+
+			    popup = L.popup()
+				    .setLatLng(e.latlng)
+				    .setContent('<p>' + prop.nome + ', ' + prop.uf  + '<br/>' + prop.acessos + ' acessos</p>')
+				    .openOn(map);
 			}
 
 			// Aplica as funcionalidades a cada feição
@@ -609,8 +616,19 @@
   		</script>
 
  <!-- *********************************************************************************************** -->
- 		<!-- Campo pesquisar -->
+ 		<!-- Campo pesquisar e Botões -->
 		<div class="divSearch" > 
+
+			<p>Alterar data das informações</p>
+
+			<form id="inputData" action="acessos_2015.php">
+   				<input title="Data atual" class="button_disable" type="submit" value="2014" disabled="true" />
+   				<input title="Mudar para 2015" class="button" type="submit" value="2015" />
+			</form>
+
+			<br><br>
+
+			<p> Pesquisar </p>
 
 			<br>
 

@@ -39,7 +39,7 @@
 
 	</head>
 
-	<body id="body" onload="getJSON()">
+	<body id="body" onload="onLoad()">
 
 		<!-- Titulo da pagina -->
 		<h2> População do Brasil - 2015</h2>
@@ -75,11 +75,17 @@
 			var info = L.control();
 //***************************************************************************
 
+			function onLoad(){
+
+				// Verifica o navegador do usuário
+  				verifyBrowser();
+
+  				// Carrega o GeoJSON com as informações
+  				getJSON();
+			}
+
   			// Função para abrir o geojson via ajax ao carregar a pagina
   			function getJSON(){
-
-  				// Verifica o navegador do usuário
-  				verifyBrowser();
 
   				// arquivo GEOJson a ser aberto
   				var url = "informacoes_geojson.geojson";
@@ -267,6 +273,13 @@
 				    fillOpacity: 0.4,
 				    radius: 650
 				}).addTo(map);
+
+				var prop = e.target.feature.properties;
+
+			    popup = L.popup()
+				    .setLatLng(e.latlng)
+				    .setContent('<p>' + prop.nome + ', ' + prop.uf  + '<br/>' + prop.pop_2015 + ' habitantes</p>')
+				    .openOn(map);
 			}
 
 			// Aplica as funcionalidades a cada feição
@@ -612,9 +625,11 @@
 
 			<br><br>
 
+			<p> Pesquisar </p>
+
 			<input id="inputSearch" maxlength="54" type="text" name="text" size="42" placeholder="Por exempo: São Paulo, MG, 2109056">
-			<button class="button" id="buttonSearch" type="button" onclick="btnSearch()">Pesquisar</button>
-			<button class="button" id="buttonAll" type="button" onclick="connect()">Todos os resultados</button>
+			<button title="Pesquisar" class="button" id="buttonSearch" type="button" onclick="btnSearch()">Pesquisar</button>
+			<button title="Exibir todos os resultados" class="button" id="buttonAll" type="button" onclick="connect()">Todos os resultados</button>
 	
 		</div>
 

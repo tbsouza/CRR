@@ -5,14 +5,14 @@
 		<meta charset="UTF-8"> <!-- Formato de codificação dos caracteres -->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="keywords" content="CRR,Inatel,IDHM,Desenvolvimento,2010">
+		<meta name="keywords" content="CRR,Inatel,Acessos,Brasil,2015">
 		<meta name="author" content="Thiago Souza">
-		<meta name="description" content="Índice de Desenvolvimento Municipal 2010 Brasil - CRR">
-		<meta property="og:title" content="IDHM 2010 - CRR">
+		<meta name="description" content="Acessos a Banda larga - 2015">
+		<meta property="og:title" content="População 2014 - CRR">
 		<meta property="og:image" content="crr_logo_pequeno.png">
-		<meta property="og:description" content="Índice de Desenvolvimento Humano Municipal no Brasil em 2010.">
+		<meta property="og:description" content="Acessos a Banda larga no Brasil por Município em 2015.">
 		<meta property="og:site_name" content="Centro de Referência em Radiocomunicações">
-
+		
 		<!-- Titulo da página -->
 		<title> CRR </title>
 
@@ -42,7 +42,7 @@
 	<body id="body" onload="onLoad()">
 
 		<!-- Titulo da pagina -->
-		<h2> IDHM - 2010</h2>
+		<h2> Acessos a Banda Larga - 2015</h2>
 
 		<!-- Campo que sera adicionado o mapa -->
 		<div id="outer">
@@ -57,12 +57,10 @@
 	  	</div>
 
   		<script type="text/javascript">
-  	
-// **************** Cria o Mapa, estilos e filtros *************************
-
-//********************** Variáveis Gloabais ********************************
+  		
+ //********************** Variáveis Gloabais ********************************
   			// Objeto GeoJson com informações dos municípios
-  			var geojsonObject=null, geoObject=null, gjson;
+  			var geojsonObject=null, geoObject=null, gjson=null;
   			
   			// Variável que reberá o mapa
   			var map=null;
@@ -77,15 +75,14 @@
 			var info = L.control();
 //***************************************************************************
 
-			// Função chamada quando a página é carregada
-  			function onLoad(){
+			function onLoad(){
 
-  				// Verifica o navegador do usuário
+				// Verifica o navegador do usuário
   				verifyBrowser();
 
   				// Carrega o GeoJSON com as informações
   				getJSON();
-  			}
+			}
 
   			// Função para abrir o geojson via ajax ao carregar a pagina
   			function getJSON(){
@@ -99,22 +96,17 @@
 	  				// Oculta a div com loading
 	  				$('.loadInner').hide();
 
-	  				// Cria o mapa
-					createMap();
-
-					// salva o arquivo GeoJSON aberto
-					gjson = null;
+					// salva o arquivo GEOJson aberto
 					gjson = json;
+
+					// Cria o mapa
+					createMap();
 
 					// Cria a camada principal a partir do GEOJson
 					geojsonObject = L.geoJson(json, {style: style, onEachFeature: onEachFeature});
 
 					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
-
-//TODO
-					//alert( String(json.properties.idhm_2010) );
-
 				});
   			}
 
@@ -123,11 +115,11 @@
   				// Se for Internet Explore ou Edge  
   				// sugere para usuário utilizar outro navegador
   				if(L.Browser.ie || L.Browser.edge){
-  					alert( "Para uma melhor experiência, recomendamos que você utilize outro navegador. " );
+  					alert( "Para uma melhor experiência, recomendamos que você utilize outro navegador." );
   				}
   			}
 
-  			// Função para criar o mapa	
+  			// Função para criar o mapa
   			function createMap(){
 
   				// cria um novo mapa
@@ -139,25 +131,25 @@
 				   		minZoom: 4, maxZoom: 13, unloadInvisibleTiles: true, updateWhenIdle: true
 				}).addTo(map);
 
+
 				info.onAdd = function (map) {
 				    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
 				    this.update();
 				    return this._div;
 				};
 
-//*************************************************************************************************************************
 				// method that we will use to update the control based on feature properties passed
 				info.update = function (props) {
 
 					// Atualiza a div com o dado do município que o mouse esta sobre
-				    this._div.innerHTML = '<h4>Índice de Desenvolvimento Humano</h4>' + (props  ?
-				        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.idhm_2010) + '"></i>' + 
-				        	props.nome + ', ' +  props.uf + '</b><br />' + props.idhm_2010 + '</sup>'  : ' ');
+				    this._div.innerHTML = '<h4>Acessos a Banda Larga &nbsp;&nbsp;&nbsp;</h4>' + (props  ?
+				        '<b>' + '<i class="info_legenda" style="background:' + getColor(props.acessos_15) + '"></i>' + 
+				        	props.nome + ', ' +  props.uf + '</b><br />' + props.acessos_15 + ' acessos</sup>'  : ' ');
 				};
 
 				// adiciona as informações feitas acima ao mapa
 				info.addTo(map);
-//*************************************************************************************************************************
+
 
 				// Variável que receberá a legenda do mapa
 				var legend = L.control({position: 'bottomright'});
@@ -166,15 +158,15 @@
 				legend.onAdd = function (map) {
 
 				    var div = L.DomUtil.create('div', 'legend'),
-				    grades = [0.400, 0.500, 0.550, 0.600, 0.650, 0.700, 0.750, 0.800];
+				        grades = [0, 200, 500, 1000, 5000, 10000, 50000];
 
 				    // checkbox para habilitar o filtro
 				    div.innerHTML += '<input id="checkFilter" type="checkbox" /> &nbsp; Filtrar <br> ';
 
-				    // loop through our population intervals and generate a label with a colored square for each interval
+				    // loop through our intervals and generate a label with a colored square for each interval
 				    for (var i = 0; i < grades.length; i++) {
 				        div.innerHTML +=
-				            '<i class="legenda" style="background:' + getColor(grades[i]) + '"/></i><input id="check' + i + 
+				            '<i class="legenda" style="background:' + getColor(grades[i] + 1) + '"/></i><input id="check' + i + 
 				            '" type="radio" disabled/> ' +
 				            grades[i] + (grades[i + 1] ? ' &ndash; ' + grades[i + 1] + '<br>' : ' +');
 				    }
@@ -202,7 +194,7 @@
 				// adiciona o toolbar no mapa
 				L.easyBar(buttons).addTo(map);
 
-				// Adiciona ação dos checkboxes (Listener do click)
+				// Adiciona ação dos checkboxes
 				document.getElementById("check0").addEventListener("click", check0Clicked, true);
 				document.getElementById("check1").addEventListener("click", check1Clicked, true);
 				document.getElementById("check2").addEventListener("click", check2Clicked, true);
@@ -210,30 +202,27 @@
 				document.getElementById("check4").addEventListener("click", check4Clicked, true);
 				document.getElementById("check5").addEventListener("click", check5Clicked, true);
 				document.getElementById("check6").addEventListener("click", check6Clicked, true);
-				document.getElementById("check7").addEventListener("click", check7Clicked, true);
 
 				// Adiciona o eventro de click
 				document.getElementById("checkFilter").addEventListener("click", checkFilter, true);
   			}
 
 //***************************************************************************************
-
   			// Funcao para diferenciar o estilo de cada feicao (padrão)
   			function getColor(p) {
-			    return p >= 0.800 ? '#1a9850' :
-			           p >= 0.750 ? '#66bd63' :
-			           p >= 0.700 ? '#a6d96a' :
-			           p >= 0.650 ? '#d9ef8b' :
-			           p >= 0.600 ? '#fee08b' :
-			           p >= 0.550 ? '#fdae61' :
-			           p >= 0.500 ? '#f46d43' :
-			                        '#d73027';
+			    return p > 50000 ? '#023858' :
+			           p > 10000 ? '#045a8d' :
+			           p > 5000  ? '#0570b0' :
+			           p > 1000  ? '#3690c0' :
+			           p > 500   ? '#74a9cf' :
+			           p > 200   ? '#a6bddb' :
+			                       '#d0d1e6';
 			}
 
 			// Funcao para aplicar o estilo padrão
 			function style(feature) {
 			    return {
-			        fillColor: getColor(feature.properties.idhm_2010),
+			        fillColor: getColor(feature.properties.acessos_15),
 			        weight: 1,
 			        opacity: 0.98,
 			        color: 'grey',
@@ -241,7 +230,6 @@
 			        fillOpacity: 0.8
 			    };
 			}
-
 
 			// Aplica o estilo ao passar o mouse
 			function highlightFeature(e) {
@@ -280,17 +268,17 @@
 
 			    // Desenha um circulo na posição do click
 			    circle = L.circle(e.latlng, {
-				    color: '#000000',
-				    fillColor: '#FFFFFF',
+				    color: 'red',
+				    fillColor: '#f03',
 				    fillOpacity: 0.4,
-				    radius: 1200
-				}).addTo(map);
+				    radius: 650
+				}).addTo(map); 
 
 			    var prop = e.target.feature.properties;
 
 			    popup = L.popup()
 				    .setLatLng(e.latlng)
-				    .setContent('<p>' + prop.nome + ', ' + prop.uf  + '<br/>' + prop.idhm_2010 + '</p>')
+				    .setContent('<p>' + prop.nome + ', ' + prop.uf  + '<br/>' + prop.acessos_15 + ' acessos</p>')
 				    .openOn(map);
 			}
 
@@ -306,15 +294,15 @@
 			// Função para limpar os marcadores
 			function removeMarkers(){
 				
-				// Se tem algum circulo desenhado, é apagado
+				// Se tem algum circulo desenhado o eleimina
 				if( circle != null ) {
-				    map.removeLayer(circle); // apaga o circulo
+				    map.removeLayer(circle);
 				    circle=null;
 				}
 
-				// Se tem algum popup desenhado, é apagado 
+				// Se tem algum popup desenhado o eleimina
 				if( popup != null ){
- 					map.removeLayer(popup); // apaga o popup
+ 					map.removeLayer(popup);
 				    popup=null;
 				}
 			}
@@ -324,11 +312,12 @@
 
 			function style0(feature) {
 
-				var idh = feature.properties.idhm_2010;
+				// Propriedade do GEOJson aberto (população 2014)
+				var acesso = feature.properties.acessos_15;
 
-				if( idh >= 0.400 && idh < 0.500 ){
+				if( acesso < 200 ){
 					return {
-				        fillColor: '#d73027',
+				        fillColor: '#d0d1e6',
 				        weight: 1,
 				        opacity: 0.98,
 				        color: 'grey',
@@ -342,11 +331,11 @@
 
 			function style1(feature) {
 
-				var idh = feature.properties.idhm_2010;
+				var acesso = feature.properties.acessos_15;
 
-				if( idh >= 0.500 && idh < 0.550  ){
+				if( acesso >= 200 && acesso < 500 ){
 					return {
-				        fillColor: '#f46d43',
+				        fillColor: '#a6bddb',
 				        weight: 1,
 				        opacity: 0.98,
 				        color: 'grey',
@@ -360,11 +349,11 @@
 
 			function style2(feature) {
 
-				var idh = feature.properties.idhm_2010;
+				var acesso = feature.properties.acessos_15;
 
-				if( idh >= 0.550 && idh < 0.600 ){
+				if( acesso >= 500 && acesso < 1000 ){
 					return {
-				        fillColor: '#fdae61',
+				        fillColor: '#74a9cf',
 				        weight: 1,
 				        opacity: 0.98,
 				        color: 'grey',
@@ -378,11 +367,11 @@
 
 			function style3(feature) {
 
-				var idh = feature.properties.idhm_2010;
+				var acesso = feature.properties.acessos_15;
 
-				if( idh >= 0.600 && idh < 0.650 ){
+				if( acesso >= 1000 && acesso < 5000 ){
 					return {
-				        fillColor: '#fee08b',
+				        fillColor: '#3690c0',
 				        weight: 1,
 				        opacity: 0.98,
 				        color: 'grey',
@@ -396,11 +385,11 @@
 
 			function style4(feature) {
 
-				var idh = feature.properties.idhm_2010;
+				var acesso = feature.properties.acessos_15;
 
-				if( idh >= 0.650 && idh < 0.700 ){
+				if( acesso >= 5000 && acesso < 10000 ){
 					return {
-				        fillColor: '#d9ef8b',
+				        fillColor: '#0570b0',
 				        weight: 1,
 				        opacity: 0.98,
 				        color: 'grey',
@@ -414,11 +403,11 @@
 
 			function style5(feature) {
 
-				var idh = feature.properties.idhm_2010;
+				var acesso = feature.properties.acessos_15;
 
-				if( idh >= 0.700 && idh < 0.750 ){
+				if( acesso >= 10000 && acesso < 50000 ){
 					return {
-				        fillColor: '#a6d96a',
+				        fillColor: '#045a8d',
 				        weight: 1,
 				        opacity: 0.98,
 				        color: 'grey',
@@ -432,29 +421,11 @@
 
 			function style6(feature) {
 
-				var idh = feature.properties.idhm_2010;
+				var acesso = feature.properties.acessos_15;
 
-				if( idh >= 0.750 && idh < 0.800 ){
+				if( acesso >= 50000 ){
 					return {
-				        fillColor: '#66bd63',
-				        weight: 1,
-				        opacity: 0.98,
-				        color: 'grey',
-				        dashArray: '',
-				        fillOpacity: 0.9
-				    };
-				}else{
-					return transparentColor();
-				}  
-			}
-
-			function style7(feature) {
-
-				var idh = feature.properties.idhm_2010;
-
-				if( idh >= 0.800 ){
-					return {
-				        fillColor: '#1a9850',
+				        fillColor: '#023858',
 				        weight: 1,
 				        opacity: 0.98,
 				        color: 'grey',
@@ -478,7 +449,7 @@
 				};
 			}
 
-			// Funções para verificar qual botão foi clicado e adiciona a camada no mapa
+			// Funções verificar qual botão foi clicado e adiciona a camada no mapa
 
 			function check0Clicked(){
 				removeFilter();
@@ -495,7 +466,6 @@
 				$('#check4').prop("checked", false);
 				$('#check5').prop("checked", false);
 				$('#check6').prop("checked", false);
-				$('#check7').prop("checked", false);
 			}
 
 			function check1Clicked(){
@@ -511,7 +481,6 @@
 				$('#check4').prop("checked", false);
 				$('#check5').prop("checked", false);
 				$('#check6').prop("checked", false);
-				$('#check7').prop("checked", false);
 			}
 
 			function check2Clicked(){
@@ -527,7 +496,6 @@
 				$('#check4').prop("checked", false);
 				$('#check5').prop("checked", false);
 				$('#check6').prop("checked", false);
-				$('#check7').prop("checked", false);
 			}
 
 			function check3Clicked(){
@@ -543,7 +511,6 @@
 				$('#check4').prop("checked", false);
 				$('#check5').prop("checked", false);
 				$('#check6').prop("checked", false);
-				$('#check7').prop("checked", false);
 			}
 
 			function check4Clicked(){
@@ -559,7 +526,6 @@
 				$('#check3').prop("checked", false);
 				$('#check5').prop("checked", false);
 				$('#check6').prop("checked", false);
-				$('#check7').prop("checked", false);
 			}
 
 			function check5Clicked(){
@@ -575,7 +541,6 @@
 				$('#check3').prop("checked", false);
 				$('#check4').prop("checked", false);
 				$('#check6').prop("checked", false);
-				$('#check7').prop("checked", false);
 			}
 
 			function check6Clicked(){
@@ -591,29 +556,13 @@
 				$('#check3').prop("checked", false);
 				$('#check4').prop("checked", false);
 				$('#check5').prop("checked", false);
-				$('#check7').prop("checked", false);
-			}
-
-			function check7Clicked(){
-				removeFilter();
-
-				geoObject = L.geoJson(gjson, {style: style7});
-
-				geoObject.addTo(map);
-
-				$('#check0').prop("checked", false);
-				$('#check1').prop("checked", false);
-				$('#check2').prop("checked", false);
-				$('#check3').prop("checked", false);
-				$('#check4').prop("checked", false);
-				$('#check5').prop("checked", false);
-				$('#check6').prop("checked", false);
 			}
 
 			// Remove todas as camadas de filtros
 			function removeFilter(){
 				if( geoObject != null ){
 					map.removeLayer(geoObject);
+					geoObject = null;
 				}
 			}
 
@@ -629,7 +578,6 @@
 					$('#check4').removeAttr("disabled");
 					$('#check5').removeAttr("disabled");
 					$('#check6').removeAttr("disabled");
-					$('#check7').removeAttr("disabled");
 
 					// Remove a camada principal do mapa
 					map.removeLayer(geojsonObject);
@@ -647,7 +595,6 @@
 					$('#check4').attr("disabled", true);
 					$('#check5').attr("disabled", true);
 					$('#check6').attr("disabled", true);
-					$('#check7').attr("disabled", true);
 
 					// Desmarca checkboxes
 					$('#check0').prop("checked", false);
@@ -657,7 +604,6 @@
 					$('#check4').prop("checked", false);
 					$('#check5').prop("checked", false);
 					$('#check6').prop("checked", false);
-					$('#check7').prop("checked", false);
 
 					// Remove todas as camadas de filtros
 					removeFilter();
@@ -666,29 +612,37 @@
 					geojsonObject.addTo(map);
 				}
 			}
-// ********************* Mapa criado ***************************************			
+
   		</script>
 
-<!-- *********************************************************************************************** -->
-		<!-- Campo pesquisar -->
+ <!-- *********************************************************************************************** -->
+ 		<<!-- Campo pesquisar -->
 		<div class="divSearch" >
 
-			<p>Pesquisar</p>
+			<p>Alterar data das informações</p>
+
+			<form id="inputData" action="acessos_2014.php">
+   				<input title="Mudar para 2014" class="button" type="submit" value="2014" />
+   				<input title="Data atual" class="button_disable" type="submit" value="2015" disabled="true" />
+			</form>
+
+			<br><br>
+
+			<p> Pesquisar </p>
 
 			<input id="inputSearch" maxlength="54" type="text" name="text" size="42" placeholder="Por exempo: São Paulo, MG, 2109056">
-			<button class="button" id="buttonSearch" type="button" onclick="btnSearch()">Pesquisar</button>
-			<button class="button" id="buttonAll" type="button" onclick="connect()">Todos os resultados</button>
+			<button title="Pesquisar" class="button" id="buttonSearch" type="button" onclick="btnSearch()">Pesquisar</button>
+			<button title="Exibir todos os resultados" class="button" id="buttonAll" type="button" onclick="connect()">Todos os resultados</button>
 	
-			<br/><br/>
-
 		</div>
 
+		<br/><br/>
+
 		<div id="div_table"></div>
+<!-- *********************************************************************************************** -->
 
-		<!-- Criação da Tabela de Resultados -->
+		<!-- Lista/Tabela de Resultados -->
 		<script type="text/javascript">
-
-// **************** Acessa o banco para retornar todos os resultados *******************
 
 			// Variáveis globais
 
@@ -698,11 +652,12 @@
 
 			var content = ""; // conteúdo digitado pelo usuário para pesquisa
 
-			var _coluna = "IDHM_2010"; // Variável que será passada para o php
+			var _coluna = "ACESSOS_2015"; // Variável que será passada para o php
 			// Representa o nome da coluna no bd que será consultada
 
 			connect();
 
+			// chama função php para conectar com o banco
 			function connect(){
 
 				if( flag != 0 ){
@@ -725,18 +680,17 @@
 			  		});
 			  	}
 			}
-// ***********************************************************************************			
 
 			// Função chamada pelo retorno do php
-			// Constroi a tabela com os resultados retornados
+			// Constroi a tabela com os resultados
 			function fncMunicipios(response){
 
-				// verifica se tabela ja exista e limpa
 				var d = document.getElementById("wrap");
 				var cont = document.body.contains(d);
 
 				var div = document.getElementById("div_table");
 
+				// verifica se tabela ja exista e limpa
 				if( cont == false ){
 					// div inner
 					var wrap = document.createElement("div");
@@ -799,7 +753,7 @@
 				    tr.appendChild(td);
 
 				    var td = document.createElement("td");
-				    td.appendChild(document.createTextNode( "IDHM" ));
+				    td.appendChild(document.createTextNode( "Acessos" ));
 				    td.setAttribute( 'style', 'width:100px' );
 				    tr.appendChild(td);
 
@@ -858,7 +812,7 @@
 
 				    // Data dos dados
 				    var p = document.createElement("p");
-				    p.appendChild( document.createTextNode("Dados de 2010") );
+				    p.appendChild( document.createTextNode("Dados de 2014") );
 				    wrap.appendChild(p);
 				    wrap.appendChild(br); 
 				    wrap.appendChild(br);
@@ -881,11 +835,11 @@
 					div.appendChild( center );
 				}
 			}
-		
-			//Funçao pesquisar
-			function btnSearch(){
+
 
 // **************** Acessa o banco para retornar os dados pesquisados *************************
+			//Funçao pesquisar
+			function btnSearch(){
 
 				var inputSearch = document.getElementById("inputSearch");
 
@@ -900,7 +854,7 @@
 
 						// elimina espaços antes e depois, se houver
 						var value = (inputSearch.value).trim();
-						var _from = "IDHM_2010";
+						var _from = "ACESSOS_2015";
 
 						$.ajax({
 				      		url:'banco_busca.php',
@@ -925,17 +879,15 @@
 				content = inputSearch.value;
 			}
 
-// ***********************************************************************************************
-			// Script para pesquisar com enter
+			// ***********************************************************************************************
+		 	// Script para pesquisar ao pressionar enter
 			$(document).ready(function(){
 				$('#inputSearch').keypress(function(e){
 					if(e.keyCode==13)
 					    $('#buttonSearch').click();
 				});
 			});
-// ***********************************************************************************************
 
 		</script>
-
 	</body>
 </html>
