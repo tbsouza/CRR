@@ -39,7 +39,7 @@
 
 	</head>
 
-	<body id="body" onload="getJSON()">
+	<body id="body" onload="onLoad()">
 
 		<!-- Titulo da pagina -->
 		<h2> População do Brasil - 2014 </h2>
@@ -75,11 +75,18 @@
 			var info = L.control();
 //***************************************************************************
 
+			// Função chamada ao carregar a pagina
+			function onLoad(){
+
+				// Verifica o navegador do usuário
+  				verifyBrowser();
+
+  				// Carrega o GeoJSON com as informações
+  				getJSON();
+			}
+
   			// Função para abrir o geojson via ajax ao carregar a pagina
   			function getJSON(){
-
-  				// Verifica o navegador do usuário
-  				verifyBrowser();
 
   				// arquivo GEOJson a ser aberto
   				var url = "informacoes_geojson.geojson";
@@ -178,12 +185,7 @@
 					L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
 					    map.setView([lat, lon], zoom);
 					}, 'Centralizar'),
-/*
-					// Botão para localizar posição do usuário
-					L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
-					    map.locate({setView : true, maxZoom: 10});
-					}, 'Locate'),
-*/
+
 					// Botão para limpar marcadores
 					L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
 					    removeMarkers();
@@ -192,12 +194,6 @@
 
 				// adiciona o toolbar no mapa
 				L.easyBar(buttons).addTo(map);
-
-				// Quando encontrar a localilação chama a função onLocationFound
-				map.on('locationfound', onLocationFound);
-
-				// Quando houver um erro na localização chama a função onLocationError
-				map.on('locationerror', onLocationError);
 
 				// Adiciona ação dos checkboxes
 				document.getElementById("check0").addEventListener("click", check0Clicked, true);
@@ -279,6 +275,13 @@
 				    fillOpacity: 0.4,
 				    radius: 650
 				}).addTo(map);
+
+			    var prop = e.target.feature.properties;
+
+			    popup = L.popup()
+				    .setLatLng(e.latlng)
+				    .setContent('<p>' + prop.nome + ', ' + prop.uf  + '<br/>' + prop.pop_2014 + ' habitantes</p>')
+				    .openOn(map);
 			}
 
 			// Aplica as funcionalidades a cada feição
@@ -288,36 +291,6 @@
 			        mouseout: resetHighlight,
 			        click: zoomToFeature
 			    });
-			}
-
-
-			// Funções e localização
-			// Ao encontrar localização
-			function onLocationFound(e) {
-
-				// Cria popup indicando a localização do usuário
-				popup = L.popup().setLatLng(e.latlng).setContent("Você está aqui!").openOn(map);
-
-				// Verifica se já existe algum circulo desenhado e o remove
-				if( circle!=null ){ map.removeLayer(circle); }
-
-			    // Desenha um circulo na localização do usuario
-				circle = L.circle(e.latlng, {
-				    color: 'red',
-				    fillColor: '#f03',
-				    fillOpacity: 0.4,
-				    radius: 650
-				}).addTo(map);
-
-				// Coloca o circulo desenhado por cima
-				circle.bringToFront();
-			}
-
-			// Não encontrar localização
-			function onLocationError(e) {
-
-				// Exibe a msg de erro no console (debug)
-			    console.log(e.message);
 			}
 
 			// Função para limpar os marcadores
@@ -645,7 +618,7 @@
   		</script>
 
  <!-- *********************************************************************************************** -->
- 		<!-- Campo pesquisar -->
+ 		<!-- Campo pesquisar e Botões-->
 		<div class="divSearch" > 
 
 			<p>Alterar data das informações</p>
@@ -656,6 +629,8 @@
 			</form>
 
 			<br><br>
+
+			<p> Pesquisar </p>
 
 			<input id="inputSearch" maxlength="54" type="text" name="text" size="42" placeholder="Por exempo: São Paulo, MG, 2109056">
 			<button title="Pesquisar" class="button" id="buttonSearch" type="button" onclick="btnSearch()">Pesquisar</button>

@@ -39,7 +39,7 @@
 
 	</head>
 
-	<body id="body" onload="getJSON()">
+	<body id="body" onload="onLoad()">
 
 		<!-- Titulo da pagina -->
 		<h2> IDHM - 2010</h2>
@@ -62,7 +62,7 @@
 
 //********************** Variáveis Gloabais ********************************
   			// Objeto GeoJson com informações dos municípios
-  			var geojsonObject=null, geoObject=null, gjson=null;
+  			var geojsonObject=null, geoObject=null, gjson;
   			
   			// Variável que reberá o mapa
   			var map=null;
@@ -78,10 +78,17 @@
 //***************************************************************************
 
 			// Função chamada quando a página é carregada
-  			function getJSON(){
+  			function onLoad(){
 
   				// Verifica o navegador do usuário
   				verifyBrowser();
+
+  				// Carrega o GeoJSON com as informações
+  				getJSON();
+  			}
+
+  			// Função para abrir o geojson via ajax ao carregar a pagina
+  			function getJSON(){
 
   				// arquivo GEOJson a ser aberto
   				var url = "informacoes_geojson.geojson";
@@ -92,17 +99,22 @@
 	  				// Oculta a div com loading
 	  				$('.loadInner').hide();
 
-					// salva o arquivo GEOJson aberto
-					gjson = json;
-
-					// Cria o mapa
+	  				// Cria o mapa
 					createMap();
+
+					// salva o arquivo GeoJSON aberto
+					gjson = null;
+					gjson = json;
 
 					// Cria a camada principal a partir do GEOJson
 					geojsonObject = L.geoJson(json, {style: style, onEachFeature: onEachFeature});
 
 					// Adiciona a camada principal no mapa
 					geojsonObject.addTo(map);
+
+//TODO
+					//alert( String(json.properties.idhm_2010) );
+
 				});
   			}
 
@@ -133,6 +145,7 @@
 				    return this._div;
 				};
 
+//*************************************************************************************************************************
 				// method that we will use to update the control based on feature properties passed
 				info.update = function (props) {
 
@@ -144,7 +157,7 @@
 
 				// adiciona as informações feitas acima ao mapa
 				info.addTo(map);
-
+//*************************************************************************************************************************
 
 				// Variável que receberá a legenda do mapa
 				var legend = L.control({position: 'bottomright'});
@@ -178,27 +191,16 @@
 					// Botão para centralizar
 					L.easyButton('<img class="imgButton" src="center.png"/>', function(btn, map){
 					    map.setView([lat, lon], zoom);
-					}, 'Center'),
-/*
-					// Botão para localizar posição do usuário
-					L.easyButton('<img class="imgButton" src="marker.png"/>', function(btn, map){
-					    map.locate({setView : true, maxZoom: 10});
-					}, 'Locate'),
-*/
+					}, 'Centralizar'),
+
 					// Botão para limpar marcadores
 					L.easyButton('<img class="imgButton" src="erase.png"/>', function(btn, map){
 					    removeMarkers();
-					}, 'Clear')
+					}, 'Limpar')
 				];
 
 				// adiciona o toolbar no mapa
 				L.easyBar(buttons).addTo(map);
-
-				// Quando encontrar a localilação chama a função onLocationFound
-				map.on('locationfound', onLocationFound);
-
-				// Quando houver um erro na localização chama a função onLocationError
-				map.on('locationerror', onLocationError);
 
 				// Adiciona ação dos checkboxes (Listener do click)
 				document.getElementById("check0").addEventListener("click", check0Clicked, true);
@@ -239,6 +241,7 @@
 			        fillOpacity: 0.8
 			    };
 			}
+
 
 			// Aplica o estilo ao passar o mouse
 			function highlightFeature(e) {
@@ -282,6 +285,13 @@
 				    fillOpacity: 0.4,
 				    radius: 1200
 				}).addTo(map);
+
+			    var prop = e.target.feature.properties;
+
+			    popup = L.popup()
+				    .setLatLng(e.latlng)
+				    .setContent('<p>' + prop.nome + ', ' + prop.uf  + '<br/>' + prop.idhm_2010 + '</p>')
+				    .openOn(map);
 			}
 
 			// Aplica as funcionalidades a cada feição
@@ -291,40 +301,6 @@
 			        mouseout: resetHighlight,
 			        click: zoomToFeature
 			    });
-			}
-
-			// Funções e localização
-			// Ao encontrar localização
-			function onLocationFound(e) {
-
-				// Cria popup indicando a localização do usuário
-				popup = L.popup().setLatLng(e.latlng).setContent("Você está aqui!").openOn(map);
-
-				// Verifica se já existe algum circulo desenhado e o remove
-				if( circle!=null ){ map.removeLayer(circle); }
-
-				// Desenha um circulo na posição do click
-			    circle = L.circle(e.latlng, {
-				    color: '#000000',
-				    fillColor: '#FFFFFF',
-				    fillOpacity: 0.4,
-				    radius: 1200
-				}).addTo(map);
-
-				// Coloca o circulo sobre as outras camadas
-				circle.bringToFront();
-			}
-
-			// Não encontrar localização
-			function onLocationError(e) {
-
-				// Evita memsagem de erro se estourar o timeout da localização
-				if( e.message != "Geolocation error: Position acquisition timed out." ){
-					console.log("Erro ao encontrar localização!");
-				}
-
-				// Exibe a msg de erro no console (debug)
-			    console.log(e.message);
 			}
 
 			// Função para limpar os marcadores
@@ -697,15 +673,15 @@
 		<!-- Campo pesquisar -->
 		<div class="divSearch" >
 
-			<p>Pesquisar por Município</p>
+			<p>Pesquisar</p>
 
 			<input id="inputSearch" maxlength="54" type="text" name="text" size="42" placeholder="Por exempo: São Paulo, MG, 2109056">
 			<button class="button" id="buttonSearch" type="button" onclick="btnSearch()">Pesquisar</button>
 			<button class="button" id="buttonAll" type="button" onclick="connect()">Todos os resultados</button>
 	
-		</div>
+			<br/><br/>
 
-		<br/><br/>
+		</div>
 
 		<div id="div_table"></div>
 
