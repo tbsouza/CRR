@@ -1,6 +1,8 @@
 # CRR
 
-Web Map Development
+Web Map Development using JavaScript and Leaflet for interactive maps.
+
+Leaflet: http://leafletjs.com/
 
 CRR: http://www.inatel.br/crr/
 
